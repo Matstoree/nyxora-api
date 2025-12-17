@@ -1,7 +1,7 @@
 module.exports = function(app) {
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI("AIzaSyAlbK2NP8qM8vLzfJmtGSFE_z4dLADvYso");
+const genAI = new GoogleGenerativeAI("AIzaSyCMKHjCSrM0B7vTH0vqGUxhPchEevZUbrY");
 
 async function Llama(prom) {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
