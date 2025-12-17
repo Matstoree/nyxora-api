@@ -3,40 +3,20 @@
     {
       "name": "Deepseek",
       "desc": "Deepseek ai",
-      "status": "Active",
+      "status": "Offline",
       "path": "/ai/deepseek?apikey=&text="
     },
     {
       "name": "Openai",
       "desc": "Openai chat",
-      "status": "Active",
+      "status": "Offline",
       "path": "/ai/openai?apikey=&text="
-    }, 
+    },
     {
       "name": "Gemini",
       "desc": "Gemini ai chat",
-      "status": "Active",
+      "status": "Offline",
       "path": "/ai/gemini?apikey=&text="
-    }
-  ],
-  "orderkuota": [
-    {
-      "name": "Create Payment",
-      "desc": "Create qris payment",
-      "status": "Active",
-      "path": "/orderkuota/createpayment?apikey=&amount=&codeqr="
-    },
-    {
-      "name": "Cek Status",
-      "desc": "Cek status payment",
-      "status": "Active",
-      "path": "/orderkuota/cekstatus?apikey=&merchant=&keyorkut="
-    },
-    {
-      "name": "Cek Saldo",
-      "desc": "To check the balance of the quota order account",
-      "status": "Active",
-      "path": "/tools/ceksaldo?apikey=&memberID=&pin=&password="
     }
   ],
   "downloader": [
@@ -99,7 +79,7 @@
       "desc": "Downloader Youtube mp3",
       "status": "Active",
       "path": "/download/ytmp3?apikey=&url="
-    },    
+    },
     {
       "name": "Snackvideo",
       "desc": "Downloader snackvideo",
@@ -111,13 +91,13 @@
       "desc": "Downloader bstation video",
       "status": "Active",
       "path": "/download/bstation?apikey=&url="
-    },    
+    },
     {
       "name": "Soundcloud",
       "desc": "Downloader soundcloud song",
       "status": "Active",
       "path": "/download/soundcloud?apikey=&url="
-    },        
+    },
     {
       "name": "Gitclone",
       "desc": "Downloader gitclone",
@@ -129,13 +109,13 @@
       "desc": "Downloader likee video",
       "status": "Active",
       "path": "/download/likee?apikey=&url="
-    },    
+    },
     {
       "name": "Twitter",
       "desc": "Downloader twitter",
       "status": "Active",
       "path": "/download/twitter?apikey=&url="
-    },    
+    },
     {
       "name": "Mediafire",
       "desc": "Downloader mediafire",
@@ -199,13 +179,13 @@
       "desc": "Search bingimage foto",
       "status": "Active",
       "path": "/search/bingimage?apikey=&q="
-    },    
+    },
     {
       "name": "Bstation Search",
       "desc": "Bstation video search",
       "status": "Active",
       "path": "/search/bstation-search?apikey=&q="
-    },    
+    },
     {
       "name": "Pinterest",
       "desc": "Search pinterest foto",
@@ -217,13 +197,13 @@
       "desc": "Search google image",
       "status": "Active",
       "path": "/search/gimage?apikey=&q="
-    },    
+    },
     {
       "name": "Spotify Search",
       "desc": "Search spotify music",
       "status": "Active",
       "path": "/search/spotify?apikey=&q="
-    },    
+    },
     {
       "name": "Playstore",
       "desc": "Search playstore apk",
@@ -267,72 +247,30 @@
       "desc": "Lookup domain of ip address",
       "status": "Active",
       "path": "/tools/iplookup?apikey=&q="
-    },    
+    },
     {
       "name": "Whois",
       "desc": "Get dns record information",
       "status": "Active",
       "path": "/tools/whois?apikey=&dns="
-    },        
+    },
     {
       "name": "Shorturl tinyurl",
       "desc": "Shortner url tinyurl.com",
       "status": "Active",
       "path": "/tools/tinyurl?apikey=&url="
-    },            
+    },
     {
       "name": "Whoip",
       "desc": "Get ip address information",
       "status": "Active",
       "path": "/tools/whoip?apikey=&ip="
-    },            
+    },
     {
       "name": "Emoji Mix",
       "desc": "Emoji mix converter",
       "status": "Active",
       "path": "/tools/emojimix?apikey=&emoji1=&emoji2="
-    },
-    {
-      "name": "Cek Gempa",
-      "desc": "Displaying the latest earthquake information",
-      "status": "Active",
-      "path": "/tools/cekgempa?apikey="
-    },
-    {
-      "name": "Cek Cuaca",
-      "desc": "Check weather information for a city",
-      "status": "Active",
-      "path": "/tools/cekcuaca?apikey=&kota="
-    },
-    {
-      "name": "Cek Kode Pos",
-      "desc": "Chek Postal code in your city",
-      "status": "Active",
-      "path": "/tools/cekkodepos?apikey=&q="
-    },
-    {
-      "name": "Jadwal sholat",
-      "desc": "Chek prayer times in your area!",
-      "status": "Active",
-      "path": "/tools/jadwalsholat?apikey=&kota="
-    },
-    {
-      "name": "Convert Uang",
-      "desc": "Convert money to other currencies!",
-      "status": "Active",
-      "path": "/tools/convert-uang?apikey=&from=&to=&amount="
-    },
-    {
-      "name": "Text To Kode Morse",
-      "desc": "create morse code ",
-      "status": "Active",
-      "path": "/tools/text2morse?apikey=&text="
-    },
-    {
-      "name": "Morse Code To Text",
-      "desc": "translate morse code to text",
-      "status": "Active",
-      "path": "/tools/morse2text?apikey=&morse="
     }
   ],
   "stalker": [
@@ -347,13 +285,13 @@
       "desc": "Stalk telegram account",
       "status": "Active",
       "path": "/stalk/telegram?apikey=&username="
-    },    
+    },
     {
       "name": "Youtube Stalk",
       "desc": "Stalk youtube account",
       "status": "Active",
       "path": "/stalk/youtube?apikey=&username="
-    },        
+    },
     {
       "name": "Tiktok Stalk",
       "desc": "Stalk tiktok account",
@@ -365,7 +303,7 @@
       "desc": "Stalk github account",
       "status": "Active",
       "path": "/stalk/github?apikey=&username="
-    },    
+    },
     {
       "name": "Npm Stalk",
       "desc": "Stalk npm package",
@@ -409,148 +347,12 @@
       "desc": "Brat text generator",
       "status": "Active",
       "path": "/imagecreator/brat?apikey=&text="
-    }, 
+    },
     {
       "name": "Brat Video",
       "desc": "Brat animated text generator",
       "status": "Active",
       "path": "/imagecreator/bratvideo?apikey=&text="
-    },
-    {
-      "name": "Nulis Buku",
-      "desc": "To write text in a book",
-      "status": "Active",
-      "path": "/imagecreator/nulis?apikey=&text=&name=&class="
-    },
-    {
-      "name": "To Hijab",
-      "desc": "Make a photo wearing a hijab",
-      "status": "Active",
-      "path": "/imagecreator/to-hijab?apikey=&imageUrl="
-    },
-    {
-      "name": "Text To Ghibli",
-      "desc": "Generete Ghibli with text",
-      "status": "Active",
-      "path": "/imagecreator/text2ghibli?apikey=&text="
-    },
-    {
-      "name": "Text To Anime",
-      "desc": "Generete Anime with text",
-      "status": "Active",
-      "path": "/imagecreator/text2anime?apikey=&text=&ratio="
-    },
-    {
-      "name": "Brat Anime",
-      "desc": "Generete Brat with Anime",
-      "status": "Active",
-      "path": "/imagecreator/bratanime?apikey=&text="
-    },
-    {
-      "name": "vcc generator",
-      "desc": "",
-      "status": "Active",
-      "path": "/imagecreator/vcc?apikey="
-    },
-    {
-      "name": "ktp maker",
-      "desc": "",
-      "status": "Active",
-      "path": "/imagecreator/ktp-maker?apikey=&nama=&nik=&ttl=&jk=&alamat=&agama=&status=&pekerjaan=&kewarganegaraan=&image="
-    }
-  ],
-  "berita": [
-    {
-      "name": "Liputan6 News",
-      "desc": "News In Liputan6",
-      "status": "Active",
-      "path": "/berita/liputan6?apikey="
-    },
-    {
-      "name": "cnbc news",
-      "desc": "News In cnbc",
-      "status": "Active",
-      "path": "/berita/cnbc?apikey="
-    },
-    {
-      "name": "cnn news",
-      "desc": "News In cnn",
-      "status": "Active",
-      "path": "/berita/cnn?apikey="
-    },
-    {
-      "name": "JKT48 news",
-      "desc": "News In JKT48",
-      "status": "Active",
-      "path": "/berita/jkt48?apikey="
-    },
-    {
-      "name": "Antara news",
-      "desc": "News In Antara",
-      "status": "Active",
-      "path": "/berita/antara?apikey="
-    },
-    {
-      "name": "Merdeka news",
-      "desc": "News In merdeka",
-      "status": "Active",
-      "path": "/berita/merdeka?apikey="
-    },
-    {
-      "name": "tribun news",
-      "desc": "News In tribun",
-      "status": "Active",
-      "path": "/berita/tribun?apikey="
-    }
-  ],
-  "Game": [
-    {
-      "name": "Tebak JKT48",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/tebakjkt?apikey="
-    },
-    {
-      "name": "Tebak Bendera",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/tebakbendera?apikey="
-    },
-    {
-      "name": "Tebak Anime",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/anime?apikey="
-    },
-    {
-      "name": "Tebak Negara",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/negara?apikey="
-    },
-    {
-      "name": "Tebak Matematika",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/matematika?apikey="
-    },
-    {
-      "name": "Tebak Lirik",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/tebaklirik?apikey="
-    },
-    {
-      "name": "Tebak Kata",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/tebakkata?apikey="
-    },
-    {
-      "name": "Tebak Hero ML",
-      "desc": "",
-      "status": "Active",
-      "path": "/game/tebakheroml?apikey="
     }
   ],
   "api": [
