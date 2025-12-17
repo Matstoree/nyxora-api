@@ -3,34 +3,24 @@ module.exports = function (app) {
   app.get('/download/ytmp4', async (req, res) => {
     try {
       const { apikey, url } = req.query
-
-      if (!apikey) return res.json({ status: false, error: 'Apikey required' })
-      if (!global.apikey.includes(apikey)) {
+      if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
-      }
 
-      if (!url) {
+      if (!url)
         return res.json({ status: false, error: 'Url is required' })
-      }
 
-      const { data } = await axios.get(
-        'https://ytdlpyton.nvlgroup.my.id/download/',
+      const results = await global.fetchJson(
+        `https://ytdlpyton.nvlgroup.my.id/download/?url=${encodeURIComponent(url)}&resolution=360&mode=url`,
         {
-          params: {
-            url: url,
-            resolution: 360,
-            mode: 'url'
-          },
           headers: {
-            'accept': 'application/json',
-            'X-API-Key': 'jarr'
+            'X-API-Key': process.env.YTDL_KEY || 'jarr'
           }
         }
       )
 
       res.status(200).json({
         status: true,
-        result: data
+        result: results
       })
 
     } catch (error) {
@@ -42,34 +32,24 @@ module.exports = function (app) {
   app.get('/download/ytmp3', async (req, res) => {
     try {
       const { apikey, url } = req.query
-
-      if (!apikey) return res.json({ status: false, error: 'Apikey required' })
-      if (!global.apikey.includes(apikey)) {
+      if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
-      }
 
-      if (!url) {
+      if (!url)
         return res.json({ status: false, error: 'Url is required' })
-      }
 
-      const { data } = await axios.get(
-        'https://ytdlpyton.nvlgroup.my.id/download/audio',
+      const results = await global.fetchJson(
+        `https://ytdlpyton.nvlgroup.my.id/download/audio?url=${encodeURIComponent(url)}&mode=url&bitrate=128k`,
         {
-          params: {
-            url: url,
-            mode: 'url',
-            bitrate: '128k'
-          },
           headers: {
-            'accept': 'application/json',
-            'X-API-Key': 'jarr'
+            'X-API-Key': process.env.YTDL_KEY || 'jarr'
           }
         }
       )
 
       res.status(200).json({
         status: true,
-        result: data
+        result: results
       })
 
     } catch (error) {
@@ -77,4 +57,4 @@ module.exports = function (app) {
     }
   })
 
-}}
+}
