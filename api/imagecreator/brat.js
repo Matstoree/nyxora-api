@@ -20,7 +20,7 @@ app.get('/imagecreator/bratvideo', async (req, res) => {
             if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
             const pedo = await getBuffer(`https://brat.siputzx.my.id/gif?text=${text}`)
             res.writeHead(200, {
-                'Content-Type': 'video/mp4',
+                'Content-Type': 'image/gif'
                 'Content-Length': pedo.length,
             });
             res.end(pedo);
