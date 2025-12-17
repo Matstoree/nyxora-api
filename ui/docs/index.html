@@ -1,867 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Modern API Docs</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-:root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --secondary: #8b5cf6;
-  --accent: #ec4899;
-  --dark: #0f172a;
-  --darker: #020617;
-  --light: #ffffff;
-  --gray: #64748b;
-  --light-gray: #f1f5f9;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  color: var(--dark);
-  overflow-x: hidden;
-}
-
-body.dark-theme {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-}
-
-/* Animated Background */
-.bg-animation {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  overflow: hidden;
-}
-
-.bg-animation span {
-  position: absolute;
-  display: block;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  animation: float 25s linear infinite;
-  bottom: -150px;
-}
-
-.bg-animation span:nth-child(1) {
-  left: 25%;
-  width: 80px;
-  height: 80px;
-  animation-delay: 0s;
-}
-
-.bg-animation span:nth-child(2) {
-  left: 10%;
-  width: 20px;
-  height: 20px;
-  animation-delay: 2s;
-  animation-duration: 12s;
-}
-
-.bg-animation span:nth-child(3) {
-  left: 70%;
-  width: 20px;
-  height: 20px;
-  animation-delay: 4s;
-}
-
-.bg-animation span:nth-child(4) {
-  left: 40%;
-  width: 60px;
-  height: 60px;
-  animation-delay: 0s;
-  animation-duration: 18s;
-}
-
-.bg-animation span:nth-child(5) {
-  left: 65%;
-  width: 20px;
-  height: 20px;
-  animation-delay: 0s;
-}
-
-.bg-animation span:nth-child(6) {
-  left: 75%;
-  width: 110px;
-  height: 110px;
-  animation-delay: 3s;
-}
-
-.bg-animation span:nth-child(7) {
-  left: 35%;
-  width: 150px;
-  height: 150px;
-  animation-delay: 7s;
-}
-
-.bg-animation span:nth-child(8) {
-  left: 50%;
-  width: 25px;
-  height: 25px;
-  animation-delay: 15s;
-  animation-duration: 45s;
-}
-
-.bg-animation span:nth-child(9) {
-  left: 20%;
-  width: 15px;
-  height: 15px;
-  animation-delay: 2s;
-  animation-duration: 35s;
-}
-
-.bg-animation span:nth-child(10) {
-  left: 85%;
-  width: 150px;
-  height: 150px;
-  animation-delay: 0s;
-  animation-duration: 11s;
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-1000px) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-/* Loading Screen */
-#loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease;
-}
-
-.loading-spinner-large {
-  width: 80px;
-  height: 80px;
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.loading-text {
-  color: white;
-  font-size: 1.2rem;
-  margin-top: 20px;
-  font-weight: 600;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Theme Toggle */
-#themeToggle {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-  z-index: 100;
-}
-
-#themeToggle:hover {
-  transform: rotate(180deg) scale(1.1);
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Container */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* Header */
-.header {
-  text-align: center;
-  padding: 4rem 0 3rem;
-  animation: fadeInDown 0.8s ease;
-}
-
-.header h1 {
-  font-size: 4rem;
-  font-weight: 800;
-  background: linear-gradient(45deg, #fff, #f0f0f0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 60px rgba(255, 255, 255, 0.3);
-}
-
-.header p {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* Stats */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin: 3rem 0;
-}
-
-.stat-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.8s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-10px);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card h3 {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.stat-card p {
-  font-size: 3rem;
-  font-weight: 700;
-  color: white;
-}
-
-/* Search */
-.search-container {
-  margin: 3rem 0;
-  animation: fadeIn 1s ease;
-}
-
-#searchInput {
-  width: 100%;
-  max-width: 600px;
-  padding: 1.2rem 1.5rem;
-  font-size: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-  color: white;
-  outline: none;
-  transition: all 0.3s ease;
-  display: block;
-  margin: 0 auto;
-}
-
-#searchInput::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-#searchInput:focus {
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
-}
-
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 1rem;
-  margin: 3rem 0 2rem;
-  overflow-x: auto;
-  padding: 0.5rem;
-  scrollbar-width: none;
-}
-
-.tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.tab {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 0.8rem 2rem;
-  border-radius: 50px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.tab:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.tab.active {
-  background: white;
-  color: var(--primary);
-  border-color: white;
-}
-
-/* API Cards */
-.api-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-bottom: 4rem;
-}
-
-.api-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 2rem;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  opacity: 0;
-  transform: translateY(30px);
-  animation: cardEntrance 0.6s ease-out forwards;
-  position: relative;
-  overflow: hidden;
-}
-
-.api-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: 0.5s;
-}
-
-.api-card:hover::before {
-  left: 100%;
-}
-
-.api-card:hover {
-  transform: translateY(-10px);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.api-info h3 {
-  font-size: 1.3rem;
-  color: white;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.api-info p {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
-.status {
-  display: inline-block;
-  padding: 0.4rem 1rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.status.warning {
-  background: rgba(245, 158, 11, 0.2);
-  color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
-.status.danger {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.3);
-}
-
-.play-button {
-  background: white;
-  color: var(--primary);
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  width: 100%;
-  justify-content: center;
-}
-
-.play-button:hover {
-  transform: translateX(5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  padding: 1rem;
-}
-
-.modal.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.modal-dialog {
-  background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  transform: scale(0.9);
-  transition: transform 0.3s ease;
-}
-
-.modal.active .modal-dialog {
-  transform: scale(1);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f1f5f9;
-}
-
-.modal-header h5 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--dark);
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  color: var(--gray);
-  transition: all 0.3s ease;
-}
-
-.btn-close:hover {
-  color: var(--dark);
-  transform: rotate(90deg);
-}
-
-.modal-body input {
-  width: 100%;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.modal-body input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-#submitParamBtn {
-  width: 100%;
-  padding: 1rem;
-  background: var(--gradient-1);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#submitParamBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-}
-
-pre {
-  background: #f8fafc;
-  padding: 1.5rem;
-  border-radius: 10px;
-  overflow-x: auto;
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-/* Footer */
-.footer {
-  text-align: center;
-  padding: 3rem 0;
-  color: rgba(255, 255, 255, 0.8);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 4rem;
-}
-
-.contact {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.contact a {
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-}
-
-.contact a:hover {
-  background: white;
-  color: var(--primary);
-  transform: translateY(-5px);
-}
-
-/* Animations */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes cardEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .header h1 {
-    font-size: 2.5rem;
-  }
-
-  .api-list {
-    grid-template-columns: 1fr;
-  }
-
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
-  #themeToggle {
-    top: 1rem;
-    right: 1rem;
-  }
-}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link id="icon" rel="icon" href="" type="image/png">
+<title id="page"></title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--primary:#3ba7ff;
+--dark:#0f172a;
+--light:#ffffff;
+--glass:rgba(255,255,255,.75);
+--glass-dark:rgba(20,20,20,.75);
+--radius-sm:10px;
+--radius-md:14px;
+--radius-lg:20px;
+--shadow:0 20px 40px rgba(0,0,0,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:Poppins,sans-serif;
+background:linear-gradient(180deg,#f8fafc,#eef2f7);
+color:#0f172a;
+min-height:100vh;
+padding:1.5rem;
+}
+body.dark-theme{
+background:radial-gradient(circle at top,#0f2027,#000);
+color:#f1f5f9;
+}
+#loading-screen{
+position:fixed;inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+background:#fff;
+z-index:9999;
+transition:.5s;
+}
+.loading-spinner-large{
+width:48px;height:48px;
+border-radius:50%;
+border:4px solid rgba(0,0,0,.1);
+border-top-color:#000;
+animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.container{max-width:1200px;margin:auto}
+.hero{
+background:var(--glass);
+backdrop-filter:blur(14px);
+border-radius:var(--radius-lg);
+padding:2rem;
+box-shadow:var(--shadow);
+margin-bottom:2rem;
+}
+body.dark-theme .hero{
+background:var(--glass-dark);
+}
+.hero h2{
+font-size:2.1rem;
+font-weight:700;
+}
+.hero p{
+margin-top:.5rem;
+opacity:.8;
+}
+#apiLinks{
+margin-top:1rem;
+display:flex;
+gap:.75rem;
+flex-wrap:wrap;
+}
+#apiLinks a{
+padding:.55rem 1.1rem;
+border-radius:999px;
+background:#0f172a;
+color:#fff;
+font-size:.85rem;
+text-decoration:none;
+}
+#apiLinks a:nth-child(2){
+background:transparent;
+border:2px solid #0f172a;
+color:#0f172a;
+}
+body.dark-theme #apiLinks a{
+background:#0f172a;
+color:#0ff;
+}
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:1.2rem;
+margin-bottom:2rem;
+}
+.stats div{
+background:linear-gradient(145deg,#fff,#f1f5f9);
+border-radius:var(--radius-md);
+padding:1.5rem;
+text-align:center;
+box-shadow:var(--shadow);
+transition:.3s;
+}
+.stats div:hover{
+transform:translateY(-6px) scale(1.02);
+}
+body.dark-theme .stats div{
+background:linear-gradient(145deg,#111,#000);
+}
+.stats h3{font-size:.85rem;opacity:.7}
+.stats p{font-size:1.6rem;font-weight:700}
+#searchInput{
+width:100%;
+max-width:520px;
+margin:auto;
+display:block;
+padding:.9rem 1.4rem;
+border-radius:999px;
+border:none;
+font-size:1rem;
+box-shadow:0 10px 30px rgba(0,0,0,.12);
+}
+#searchInput:focus{
+outline:none;
+box-shadow:0 0 0 3px rgba(59,167,255,.35);
+}
+.tabs{
+display:flex;
+gap:1.2rem;
+overflow-x:auto;
+margin:2rem 0 1rem;
+}
+.tab{
+background:none;
+border:none;
+font-weight:700;
+font-size:1rem;
+cursor:pointer;
+opacity:.6;
+}
+.tab.active{
+opacity:1;
+border-bottom:3px solid #0f172a;
+}
+body.dark-theme .tab.active{
+border-color:#0ff;
+color:#0ff;
+}
+.api-list{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+gap:1.25rem;
+}
+.api-card{
+background:linear-gradient(180deg,#fff,#f9fafb);
+border-radius:var(--radius-md);
+padding:1rem;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:var(--shadow);
+transition:.35s cubic-bezier(.175,.885,.32,1.15);
+}
+.api-card:hover{
+transform:translateY(-8px) scale(1.015);
+}
+body.dark-theme .api-card{
+background:linear-gradient(180deg,#151515,#0d0d0d);
+}
+.api-info h3{font-size:1rem}
+.api-info p{font-size:.8rem;opacity:.7}
+.status{
+display:inline-block;
+margin-top:.4rem;
+padding:.3rem 1.2rem;
+border-radius:999px;
+font-size:.7rem;
+background:rgba(46,204,113,.15);
+color:#2ecc71;
+}
+.status.warning{background:rgba(243,156,18,.15);color:#f39c12}
+.status.danger{background:rgba(231,76,60,.15);color:#e74c3c}
+.play-button{
+border:none;
+border-radius:999px;
+padding:.6rem 1.2rem;
+font-weight:600;
+background:#0f172a;
+color:#fff;
+cursor:pointer;
+display:flex;
+gap:.4rem;
+align-items:center;
+transition:.3s;
+}
+.play-button:hover{transform:translateY(-2px)}
+body.dark-theme .play-button{
+background:#020617;
+color:#0ff;
+}
+.modal{
+position:fixed;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,.55);
+backdrop-filter:blur(8px);
+opacity:0;
+pointer-events:none;
+transition:.3s;
+}
+.modal.active{opacity:1;pointer-events:auto}
+.modal-dialog{
+background:var(--glass);
+backdrop-filter:blur(16px);
+border-radius:var(--radius-lg);
+padding:1.5rem;
+max-width:520px;
+width:100%;
+box-shadow:var(--shadow);
+}
+body.dark-theme .modal-dialog{
+background:var(--glass-dark);
+}
+.footer{
+text-align:center;
+margin-top:3rem;
+opacity:.7;
+}
+.contact{
+margin-top:1rem;
+display:flex;
+justify-content:center;
+gap:1rem;
+}
+.contact a{
+width:42px;height:42px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:50%;
+background:#e5e7eb;
+color:#000;
+text-decoration:none;
+}
+body.dark-theme .contact a{
+background:#020617;
+color:#0ff;
+}
+</style>
 </head>
 <body>
-  <!-- Animated Background -->
-  <div class="bg-animation">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-
-  <!-- Loading Screen -->
-  <div id="loading-screen">
-    <div class="loading-spinner-large"></div>
-    <div class="loading-text">Loading...</div>
-  </div>
-
-  <!-- Theme Toggle -->
-  <button id="themeToggle">
-    <i class="fas fa-moon"></i>
-  </button>
-
-  <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <h1>🚀 Modern API</h1>
-      <p>Simple, powerful, and elegant API documentation for developers</p>
-    </header>
-
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat-card">
-        <h3>Total Endpoints</h3>
-        <p id="total-endpoint">42</p>
-      </div>
-      <div class="stat-card">
-        <h3>Total Requests</h3>
-        <p id="total-request">15.2K</p>
-      </div>
-      <div class="stat-card">
-        <h3>Uptime</h3>
-        <p>99.9%</p>
-      </div>
-    </div>
-
-    <!-- Search -->
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="🔍 Search API endpoints...">
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs" id="tabs">
-      <button class="tab active" data-tab="ai">AI & ML</button>
-      <button class="tab" data-tab="downloader">Downloader</button>
-      <button class="tab" data-tab="tools">Tools</button>
-      <button class="tab" data-tab="anime">Anime</button>
-    </div>
-
-    <!-- API List -->
-    <div id="api-list" class="api-list">
-      <!-- Cards will be generated here -->
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="apiResponseModal">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h5>API Endpoint</h5>
-        <button class="btn-close" id="btn-close">×</button>
-      </div>
-      <div class="modal-body">
-        <form id="paramForm"></form>
-        <button id="submitParamBtn">Execute Request</button>
-        <div id="apiResponseLoading" class="loading-spinner" style="display: none;"></div>
-        <div id="apiResponseContent" style="display: none;">
-          <pre>Response will appear here...</pre>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>© 2024 Modern API Documentation</p>
-    <div class="contact">
-      <a href="#"><i class="fab fa-github"></i></a>
-      <a href="#"><i class="fab fa-whatsapp"></i></a>
-      <a href="#"><i class="fab fa-youtube"></i></a>
-    </div>
-  </footer>
-
-  <script>
-    // Sample API data
-    const sampleAPIs = {
-      ai: [
-        { name: "ChatGPT", desc: "Advanced AI chatbot powered by GPT-4", path: "/api/chatgpt?text=hello", status: "Active" },
-        { name: "Image Generator", desc: "AI-powered image generation", path: "/api/generate-image?prompt=cat", status: "Active" },
-        { name: "Text to Speech", desc: "Convert text to natural speech", path: "/api/tts?text=hello", status: "Beta" }
-      ],
-      downloader: [
-        { name: "YouTube Downloader", desc: "Download YouTube videos", path: "/api/ytdl?url=", status: "Active" },
-        { name: "Instagram Downloader", desc: "Download Instagram content", path: "/api/igdl?url=", status: "Active" },
-        { name: "TikTok Downloader", desc: "Download TikTok videos", path: "/api/tiktok?url=", status: "Maintenance" }
-      ],
-      tools: [
-        { name: "URL Shortener", desc: "Shorten long URLs", path: "/api/short?url=", status: "Active" },
-        { name: "QR Generator", desc: "Generate QR codes", path: "/api/qr?text=", status: "Active" }
-      ],
-      anime: [
-        { name: "Anime Search", desc: "Search anime information", path: "/api/anime?q=", status: "Active" },
-        { name: "Random Waifu", desc: "Get random anime waifu", path: "/api/waifu", status: "Beta" }
-      ]
-    };
-
-    // Hide loading screen
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.opacity = '0';
-      setTimeout(() => {
-        document.getElementById('loading-screen').style.display = 'none';
-      }, 500);
-    }, 1500);
-
-    // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', function() {
-      document.body.classList.toggle('dark-theme');
-      const icon = this.querySelector('i');
-      icon.classList.toggle('fa-moon');
-      icon.classList.toggle('fa-sun');
-    });
-
-    // Render API cards
-    function renderAPIs(category) {
-      const apiList = document.getElementById('api-list');
-      apiList.innerHTML = '';
-      
-      sampleAPIs[category].forEach((api, i) => {
-        let statusClass = '';
-        if (api.status === 'Maintenance') statusClass = 'danger';
-        else if (api.status === 'Beta') statusClass = 'warning';
-        
-        const card = document.createElement('div');
-        card.className = 'api-card';
-        card.style.animationDelay = `${i * 0.1}s`;
-        card.innerHTML = `
-          <div class="api-info">
-            <h3>${api.name}</h3>
-            <p>${api.desc}</p>
-            <span class="status ${statusClass}">${api.status}</span>
-          </div>
-          <button class="play-button" data-endpoint="${api.path}">
-            <i class="fas fa-play"></i> Try It
-          </button>
-        `;
-        apiList.appendChild(card);
-      });
-    }
-
-    // Initial render
-    renderAPIs('ai');
-
-    // Tab switching
-    document.getElementById('tabs').addEventListener('click', (e) => {
-      if (e.target.classList.contains('tab')) {
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        e.target.classList.add('active');
-        renderAPIs(e.target.dataset.tab);
-      }
-    });
-
-    // Modal handling
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('.play-button')) {
-        document.getElementById('apiResponseModal').classList.add('active');
-      }
-      
-      if (e.target.id === 'btn-close' || e.target === document.getElementById('apiResponseModal')) {
-        document.getElementById('apiResponseModal').classList.remove('active');
-      }
-    });
-
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function() {
-      const query = this.value.toLowerCase();
-      const cards = document.querySelectorAll('.api-card');
-      
-      cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(query) ? 'block' : 'none';
-      });
-    });
-  </script>
+<div id="loading-screen">
+<div class="loading-spinner-large"></div>
+<div>Loading...</div>
+</div>
+<div class="container">
+<section class="hero">
+<h2 id="apiTitle"></h2>
+<p>Simple API with easy and minimalistic integration for WhatsApp Bot Developers.</p>
+<div id="apiLinks">
+<a id="information">Information API</a>
+<a id="contactdev">Contact Dev</a>
+</div>
+</section>
+<div class="stats">
+<div><h3>Total Endpoint</h3><p id="total-endpoint">-</p></div>
+<div><h3>Total Request</h3><p id="total-request">-</p></div>
+</div>
+<input id="searchInput" placeholder="Search API...">
+<div class="tabs" id="tabs"></div>
+<div class="api-list" id="api-list"></div>
+</div>
+<footer class="footer">
+<div id="credits"></div>
+<div class="contact">
+<a id="githubLink"><i class="fab fa-github"></i></a>
+<a id="whatsappLink"><i class="fab fa-whatsapp"></i></a>
+<a id="youtubeLink"><i class="fab fa-youtube"></i></a>
+</div>
+</footer>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+document.querySelector(".container").style.display="none";
+document.querySelector("footer").style.display="none";
+setTimeout(()=>{
+document.getElementById("loading-screen").style.opacity=0;
+setTimeout(()=>{
+document.getElementById("loading-screen").style.display="none";
+document.querySelector(".container").style.display="block";
+document.querySelector("footer").style.display="block";
+},500)
+},800)
+})
+</script>
 </body>
 </html>
