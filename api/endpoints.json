@@ -224,12 +224,12 @@
     }
   ],
   "tools": [
-    {
+{
   "name": "File to URL",
   "desc": "Upload file and get URL (auto delete after 5 minutes)",
   "status": "Active",
-  "path": "/tools/tourl?apikey="
-    },
+  "path": "/tools/tourl"
+},
     {
       "name": "Text-to-speech",
       "desc": "Tts anime character",
