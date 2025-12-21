@@ -1,127 +1,187 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const { fromBuffer } = require('file-type');
-const qs = require('qs');
+const path = require('path');
 
-const tool = [ 'removebg', 'enhance', 'upscale', 'restore', 'colorize' ];
+// ===================== REMOVEBG SCRAPER =====================
+async function removeBg(buffer) {
+    try {
+        const form = new FormData();
+        form.append('format', 'png');
+        form.append('model', 'v1');
+        form.append('image', buffer, { filename: 'image.png' });
 
-const pxpic = {
- upload: async (filePath) => {
-  const buffer = filePath
-  const { ext, mime } = (await fromBuffer(buffer)) || {};
-  const fileName = Date.now() + "." + ext;
+        const res = await axios.post('https://api2.pixelcut.app/image/matte/v1', form, {
+            headers: {
+                'x-client-version': 'web',
+                ...form.getHeaders()
+            },
+            responseType: 'arraybuffer'
+        });
 
-  const folder = "uploads";
-  const responsej = await axios.post("https://pxpic.com/getSignedUrl", { folder, fileName }, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  const { presignedUrl } = responsej.data;
-
-  await axios.put(presignedUrl, buffer, {
-    headers: {
-      "Content-Type": mime,
-    },
-  });
-
-  const cdnDomain = "https://files.fotoenhancer.com/uploads/";
-  const sourceFileUrl = cdnDomain + fileName;
-
-  return sourceFileUrl;
-  },
-  create: async (filePath, tools) => {
-    if (!tool.includes(tools)) { 
-        return `Pilih salah satu dari tools ini: ${tool.join(', ')}`; 
+        return Buffer.from(res.data);
+    } catch (error) {
+        throw new Error('Failed to remove background: ' + error.message);
     }
-    const url = await pxpic.upload(filePath);
-    let data = qs.stringify({
-      'imageUrl': url,
-      'targetFormat': 'png',
-      'needCompress': 'no',
-      'imageQuality': '100',
-      'compressLevel': '6',
-      'fileOriginalExtension': 'png',
-      'aiFunction': tools,
-      'upscalingLevel': ''
+}
+
+// ===================== UPSCALE SCRAPER (iLoveImg) =====================
+class UpscaleImageAPI {
+    api = null;
+    server = null;
+    taskId = null;
+    token = null;
+
+    async getTaskId() {
+        const { data: html } = await axios.get("https://www.iloveimg.com/upscale-image", {
+            headers: { 
+                "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36" 
+            }
+        });
+
+        const tokenMatches = html.match(/(ey[a-zA-Z0-9?%\-_/]+)/g);
+        if (!tokenMatches || tokenMatches.length < 2) throw new Error("Token not found.");
+        this.token = tokenMatches[1];
+
+        const configMatch = html.match(/var ilovepdfConfig = ({.*?});/s);
+        if (!configMatch) throw new Error("Server configuration not found.");
+        const configJson = JSON.parse(configMatch[1]);
+        const servers = configJson.servers;
+        if (!Array.isArray(servers) || servers.length === 0) throw new Error("Server list is empty.");
+
+        this.server = servers[Math.floor(Math.random() * servers.length)];
+        this.taskId = html.match(/ilovepdfConfig\.taskId\s*=\s*['"](\w+)['"]/)?.[1];
+
+        this.api = axios.create({
+            baseURL: `https://${this.server}.iloveimg.com`,
+            headers: {
+                "Authorization": `Bearer ${this.token}`,
+                "Origin": "https://www.iloveimg.com",
+                "Referer": "https://www.iloveimg.com/",
+                "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36"
+            }
+        });
+
+        if (!this.taskId) throw new Error("Task ID not found!");
+        return { taskId: this.taskId, server: this.server, token: this.token };
+    }
+
+    async uploadFromBuffer(buffer) {
+        if (!this.taskId || !this.api) throw new Error("Run getTaskId() first.");
+        
+        const fileType = await fromBuffer(buffer);
+        if (!fileType || !fileType.mime.startsWith("image/")) throw new Error("Unsupported file type.");
+
+        const fileName = `image.${fileType.ext}`;
+
+        const form = new FormData();
+        form.append("name", fileName);
+        form.append("chunk", "0");
+        form.append("chunks", "1");
+        form.append("task", this.taskId);
+        form.append("preview", "1");
+        form.append("file", buffer, { filename: fileName, contentType: fileType.mime });
+
+        const response = await this.api.post("/v1/upload", form, { 
+            headers: form.getHeaders() 
+        });
+        return response.data;
+    }
+
+    async upscaleImage(serverFilename, scale = 4) {
+        if (!this.taskId || !this.api) throw new Error("Run getTaskId() first.");
+        if (scale !== 2 && scale !== 4) throw new Error("Scale must be 2 or 4.");
+
+        const form = new FormData();
+        form.append("task", this.taskId);
+        form.append("server_filename", serverFilename);
+        form.append("scale", scale.toString());
+
+        const response = await this.api.post("/v1/upscale", form, { 
+            headers: form.getHeaders(), 
+            responseType: "arraybuffer" 
+        });
+        return Buffer.from(response.data);
+    }
+}
+
+async function upscaleImage(buffer, scale = 4) {
+    try {
+        const upscaler = new UpscaleImageAPI();
+        await upscaler.getTaskId();
+        const uploadResult = await upscaler.uploadFromBuffer(buffer);
+        if (!uploadResult || !uploadResult.server_filename) {
+            throw new Error("Failed to upload image.");
+        }
+        return await upscaler.upscaleImage(uploadResult.server_filename, scale);
+    } catch (error) {
+        throw new Error('Failed to upscale image: ' + error.message);
+    }
+}
+
+// ===================== HELPER FUNCTION =====================
+async function getBuffer(url) {
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        return Buffer.from(response.data);
+    } catch (error) {
+        throw new Error('Failed to fetch image: ' + error.message);
+    }
+}
+
+// ===================== REST API ROUTES =====================
+module.exports = function(app) {
+    // Remove Background API
+    app.get('/imagecreator/removebg', async (req, res) => {
+        const { apikey, url } = req.query;
+        if (!global.apikey.includes(apikey)) {
+            return res.json({ status: false, error: 'Apikey invalid' });
+        }
+        if (!url) {
+            return res.json({ status: false, error: 'URL is required' });
+        }
+        try {
+            const imageBuffer = await getBuffer(url);
+            const resultBuffer = await removeBg(imageBuffer);
+            
+            // Convert buffer to base64 for JSON response
+            const base64Image = resultBuffer.toString('base64');
+            res.status(200).json({
+                status: true,
+                result: `data:image/png;base64,${base64Image}`
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                status: false, 
+                error: error.message 
+            });
+        }
     });
 
-    let config = {
-      method: 'POST',
-      url: 'https://pxpic.com/callAiFunction',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Android 10; Mobile; rv:131.0) Gecko/131.0 Firefox/131.0',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'accept-language': 'id-ID'
-      },
-      data: data
-    };
-
-    const api = await axios.request(config);
-    return api.data;
-  }
-}
-
-module.exports = function(app) {
-app.get('/imagecreator/removebg', async (req, res) => {
-       const { apikey, url } = req.query
-       if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
+    // Upscale Image API
+    app.get('/imagecreator/upscale', async (req, res) => {
+        const { apikey, url } = req.query;
+        if (!global.apikey.includes(apikey)) {
+            return res.json({ status: false, error: 'Apikey invalid' });
+        }
+        if (!url) {
+            return res.json({ status: false, error: 'URL is required' });
+        }
         try {
-            let image = await getBuffer(url)
-            const result = await pxpic.create(image, "removebg")
+            const imageBuffer = await getBuffer(url);
+            const resultBuffer = await upscaleImage(imageBuffer, 4);
+            
+            // Convert buffer to base64 for JSON response
+            const base64Image = resultBuffer.toString('base64');
             res.status(200).json({
                 status: true,
-                result: result.resultImageUrl
+                result: `data:image/png;base64,${base64Image}`
             });
         } catch (error) {
-            res.status(500).send(`Error: ${error.message}`);
-        }
-});
-
-app.get('/imagecreator/remini', async (req, res) => {
-       const { apikey, url } = req.query
-       if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
-        try {
-            let image = await getBuffer(url)
-            const result = await pxpic.create(image, "enhance")
-            res.status(200).json({
-                status: true,
-                result: result.resultImageUrl
+            res.status(500).json({ 
+                status: false, 
+                error: error.message 
             });
-        } catch (error) {
-            res.status(500).send(`Error: ${error.message}`);
         }
-});
-
-app.get('/imagecreator/upscale', async (req, res) => {
-       const { apikey, url } = req.query
-       if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
-        try {
-            let image = await getBuffer(url)
-            const result = await pxpic.create(image, "upscale")
-            res.status(200).json({
-                status: true,
-                result: result.resultImageUrl
-            });
-        } catch (error) {
-            res.status(500).send(`Error: ${error.message}`);
-        }
-});
-
-app.get('/imagecreator/colorize', async (req, res) => {
-       const { apikey, url } = req.query
-       if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
-        try {
-            let image = await getBuffer(url)
-            const result = await pxpic.create(image, "colorize")
-            res.status(200).json({
-                status: true,
-                result: result.resultImageUrl
-            });
-        } catch (error) {
-            res.status(500).send(`Error: ${error.message}`);
-        }
-});
-}
+    });
+};
