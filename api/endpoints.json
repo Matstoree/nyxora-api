@@ -262,12 +262,7 @@
       "status": "Active",
       "path": "/tools/whois?apikey=&dns="
     },
-    {
-      "name": "Shorturl tinyurl",
-      "desc": "Shortner url tinyurl.com",
-      "status": "Active",
-      "path": "/tools/tinyurl?apikey=&url="
-    },
+    
     {
       "name": "Whoip",
       "desc": "Get ip address information",
