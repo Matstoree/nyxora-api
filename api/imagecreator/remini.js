@@ -129,6 +129,24 @@ async function getBuffer(url) {
     }
 }
 
+// Upload ke temporary storage (tmpfiles.org)
+async function uploadImage(buffer) {
+    try {
+        const { ext, mime } = await fromBuffer(buffer);
+        const form = new FormData();
+        form.append('file', buffer, { filename: `tmp.${ext}`, contentType: mime });
+
+        const { data } = await axios.post('https://tmpfiles.org/api/v1/upload', form, {
+            headers: form.getHeaders()
+        });
+
+        const match = /https?:\/\/tmpfiles.org\/(.*)/.exec(data.data.url);
+        return `https://tmpfiles.org/dl/${match[1]}`;
+    } catch (error) {
+        throw new Error('Failed to upload image: ' + error.message);
+    }
+}
+
 // ===================== REST API ROUTES =====================
 module.exports = function(app) {
     // Remove Background API
@@ -144,11 +162,13 @@ module.exports = function(app) {
             const imageBuffer = await getBuffer(url);
             const resultBuffer = await removeBg(imageBuffer);
             
-            // Convert buffer to base64 for JSON response
-            const base64Image = resultBuffer.toString('base64');
+            // Upload ke tmpfiles untuk dapat URL
+            const imageUrl = await uploadImage(resultBuffer);
+            
             res.status(200).json({
                 status: true,
-                result: `data:image/png;base64,${base64Image}`
+                creator: 'ItsMeMatt',
+                result: imageUrl
             });
         } catch (error) {
             res.status(500).json({ 
@@ -171,11 +191,13 @@ module.exports = function(app) {
             const imageBuffer = await getBuffer(url);
             const resultBuffer = await upscaleImage(imageBuffer, 4);
             
-            // Convert buffer to base64 for JSON response
-            const base64Image = resultBuffer.toString('base64');
+            // Upload ke tmpfiles untuk dapat URL
+            const imageUrl = await uploadImage(resultBuffer);
+            
             res.status(200).json({
                 status: true,
-                result: `data:image/png;base64,${base64Image}`
+                creator: 'ItsMeMatt',
+                result: imageUrl
             });
         } catch (error) {
             res.status(500).json({ 
