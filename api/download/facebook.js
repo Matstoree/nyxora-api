@@ -2,7 +2,7 @@ const axios = require('axios')
 const cheerio = require('cheerio')
 
 async function facebook(url) {
-  if (!/facebook\.\w+\/(reel|watch|share)/gi.test(url)) {
+  if (!/(facebook\.com|fb\.watch)/i.test(url)) {
     throw new Error("Invalid Facebook URL")
   }
 
