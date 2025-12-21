@@ -315,12 +315,6 @@
   ],
   "creator": [
     {
-      "name": "Remini",
-      "desc": "Remini image",
-      "status": "Active",
-      "path": "/imagecreator/remini?apikey=&url="
-    },
-    {
       "name": "Removebg",
       "desc": "Remove background image",
       "status": "Active",
@@ -331,12 +325,6 @@
       "desc": "Upscale image",
       "status": "Active",
       "path": "/imagecreator/upscale?apikey=&url="
-    },
-    {
-      "name": "Colorize",
-      "desc": "Colorize image",
-      "status": "Active",
-      "path": "/imagecreator/colorize?apikey=&url="
     },
     {
       "name": "Brat",
