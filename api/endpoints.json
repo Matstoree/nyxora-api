@@ -156,6 +156,12 @@
     }
   ],
   "search": [
+   {
+  "name": "Lyrics Search",
+  "desc": "Search lyrics song",
+  "status": "Active",
+  "path": "/search/lyrics?apikey=&q="
+    },
     {
       "name": "Youtube Search",
       "desc": "Search youtube video",
