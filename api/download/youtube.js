@@ -1,8 +1,88 @@
+const axios = require('axios')
+const crypto = require('crypto')
+
+/* ================== SCRAPER SAVETUBE (YTMP3) ================== */
+const savetube = {
+  api: {
+    base: "https://media.savetube.me/api",
+    cdn: "/random-cdn",
+    info: "/v2/info",
+    download: "/download"
+  },
+  headers: {
+    'accept': '*/*',
+    'content-type': 'application/json',
+    'origin': 'https://yt.savetube.me',
+    'referer': 'https://yt.savetube.me/',
+    'user-agent': 'Postify/1.0.0'
+  },
+  youtube(url) {
+    const r = [
+      /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+      /watch\?v=([a-zA-Z0-9_-]{11})/,
+      /shorts\/([a-zA-Z0-9_-]{11})/
+    ]
+    for (const x of r) if (x.test(url)) return url.match(x)[1]
+    return null
+  },
+  decrypt(enc) {
+    const key = Buffer.from('C5D58EF67A7584E4A29F6C35BBC4EB12', 'hex')
+    const buf = Buffer.from(enc, 'base64')
+    const iv = buf.slice(0, 16)
+    const data = buf.slice(16)
+    const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
+    return JSON.parse(
+      Buffer.concat([decipher.update(data), decipher.final()]).toString()
+    )
+  },
+  async getCDN() {
+    const { data } = await axios.get(this.api.base + this.api.cdn)
+    return data.cdn
+  },
+  async post(url, data) {
+    const res = await axios.post(url, data, { headers: this.headers })
+    return res.data
+  },
+  async mp3(url) {
+    const id = this.youtube(url)
+    if (!id) throw new Error('URL YouTube tidak valid')
+
+    const cdn = await this.getCDN()
+
+    const info = await this.post(
+      `https://${cdn}${this.api.info}`,
+      { url: `https://www.youtube.com/watch?v=${id}` }
+    )
+
+    const meta = this.decrypt(info.data)
+
+    const dl = await this.post(
+      `https://${cdn}${this.api.download}`,
+      {
+        id,
+        downloadType: 'audio',
+        quality: '128',
+        key: meta.key
+      }
+    )
+
+    return {
+      title: meta.title,
+      duration: meta.duration,
+      thumbnail: meta.thumbnail || `https://i.ytimg.com/vi/${id}/0.jpg`,
+      download: dl.data.downloadUrl
+    }
+  }
+}
+
+/* ================== ROUTE ================== */
 module.exports = function (app) {
 
+  // ================== YTMP4 (API LAMA) ==================
   app.get('/download/ytmp4', async (req, res) => {
     try {
       const { apikey, url } = req.query
+
       if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
 
@@ -18,42 +98,36 @@ module.exports = function (app) {
         }
       )
 
-      res.status(200).json({
-        status: true,
-        result: results
-      })
+      res.json({ status: true, result: results })
 
-    } catch (error) {
-      res.status(500).send(`Error: ${error.message}`)
+    } catch (e) {
+      res.status(500).json({ status: false, error: e.message })
     }
   })
 
-
+  // ================== YTMP3 (SAVETUBE FIX) ==================
   app.get('/download/ytmp3', async (req, res) => {
     try {
       const { apikey, url } = req.query
+
       if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
 
       if (!url)
         return res.json({ status: false, error: 'Url is required' })
 
-      const results = await global.fetchJson(
-        `https://ytdlpyton.nvlgroup.my.id/download/audio?url=${encodeURIComponent(url)}&mode=url&bitrate=128k`,
-        {
-          headers: {
-            'X-API-Key': process.env.YTDL_KEY || 'jarr'
-          }
-        }
-      )
+      const result = await savetube.mp3(url)
 
-      res.status(200).json({
+      res.json({
         status: true,
-        result: results
+        result
       })
 
-    } catch (error) {
-      res.status(500).send(`Error: ${error.message}`)
+    } catch (e) {
+      res.status(500).json({
+        status: false,
+        error: e.message
+      })
     }
   })
 
