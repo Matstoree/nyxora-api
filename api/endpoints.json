@@ -9,7 +9,7 @@
     {
       "name": "Openai",
       "desc": "Openai chat",
-      "status": "Offline",
+      "status": "Active",
       "path": "/ai/openai?apikey=&text="
     },
     {
