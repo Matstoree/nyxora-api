@@ -43,13 +43,7 @@
       "desc": "Downloader spotify",
       "status": "Active",
       "path": "/download/spotify?apikey=&url="
-    },
-    {
-  "name": "Spotify Play",
-  "desc": "Download & play spotify audio",
-  "status": "Active",
-  "path": "/download/spotify-play?apikey=&url="
-    },
+    },    
     {
       "name": "XNXX",
       "desc": "Downloader xnxx",
