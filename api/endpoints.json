@@ -15,7 +15,7 @@
     {
       "name": "Gemini",
       "desc": "Gemini ai chat",
-      "status": "Offline",
+      "status": "Active",
       "path": "/ai/gemini?apikey=&text="
     }
   ],
