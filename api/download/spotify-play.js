@@ -1,9 +1,9 @@
 const axios = require("axios");
 const FormData = require("form-data");
-const { fileTypeFromBuffer } = require("file-type");
+const FileType = require("file-type");
 
 async function uploadBuffer(buffer) {
-  const type = await fileTypeFromBuffer(buffer);
+  const type = await FileType.fileTypeFromBuffer(buffer);
   if (!type) throw new Error("File type tidak dikenali");
 
   const form = new FormData();
