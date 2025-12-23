@@ -1,4 +1,26 @@
 const axios = require("axios");
+const FormData = require("form-data");
+const { fileTypeFromBuffer } = require("file-type");
+
+async function uploadBuffer(buffer) {
+  const type = await fileTypeFromBuffer(buffer);
+  if (!type) throw new Error("File type tidak dikenali");
+
+  const form = new FormData();
+  form.append("file", buffer, {
+    filename: `spotify.${type.ext}`,
+    contentType: type.mime
+  });
+
+  const { data } = await axios.post(
+    "https://tmpfiles.org/api/v1/upload",
+    form,
+    { headers: form.getHeaders() }
+  );
+
+  const match = /https?:\/\/tmpfiles.org\/(.*)/.exec(data.data.url);
+  return `https://tmpfiles.org/dl/${match[1]}`;
+}
 
 module.exports = function (app) {
   app.get("/download/spotify-play", async (req, res) => {
@@ -42,7 +64,7 @@ module.exports = function (app) {
 
       const song = s.songs[0];
 
-      const { data: dl } = await axios.post(
+      const { data: audioBuffer } = await axios.post(
         "https://spotdown.org/api/download",
         { url: song.url },
         {
@@ -51,16 +73,12 @@ module.exports = function (app) {
             referer: "https://spotdown.org/",
             "user-agent":
               "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
-          }
+          },
+          responseType: "arraybuffer"
         }
       );
 
-      if (!dl || !dl.data || !dl.data.url) {
-        return res.json({
-          status: false,
-          error: "Gagal mendapatkan audio url"
-        });
-      }
+      const audioUrl = await uploadBuffer(Buffer.from(audioBuffer));
 
       res.json({
         status: true,
@@ -71,7 +89,7 @@ module.exports = function (app) {
           duration: song.duration,
           cover: song.thumbnail
         },
-        audio: dl.data.url
+        audio: audioUrl
       });
     } catch (err) {
       res.json({
