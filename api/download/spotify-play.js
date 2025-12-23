@@ -1,26 +1,4 @@
 const axios = require("axios");
-const FormData = require("form-data");
-const FileType = require("file-type");
-
-async function uploadBuffer(buffer) {
-  const type = await FileType.fileTypeFromBuffer(buffer);
-  if (!type) throw new Error("File type tidak dikenali");
-
-  const form = new FormData();
-  form.append("file", buffer, {
-    filename: `spotify.${type.ext}`,
-    contentType: type.mime
-  });
-
-  const { data } = await axios.post(
-    "https://tmpfiles.org/api/v1/upload",
-    form,
-    { headers: form.getHeaders() }
-  );
-
-  const match = /https?:\/\/tmpfiles.org\/(.*)/.exec(data.data.url);
-  return `https://tmpfiles.org/dl/${match[1]}`;
-}
 
 module.exports = function (app) {
   app.get("/download/spotify-play", async (req, res) => {
@@ -41,7 +19,7 @@ module.exports = function (app) {
         });
       }
 
-      const input = url || q;
+      const input = url ? url : q;
 
       const { data: s } = await axios.get(
         `https://spotdown.org/api/song-details?url=${encodeURIComponent(input)}`,
@@ -64,7 +42,7 @@ module.exports = function (app) {
 
       const song = s.songs[0];
 
-      const { data: audioBuffer } = await axios.post(
+      const { data } = await axios.post(
         "https://spotdown.org/api/download",
         { url: song.url },
         {
@@ -78,8 +56,6 @@ module.exports = function (app) {
         }
       );
 
-      const audioUrl = await uploadBuffer(Buffer.from(audioBuffer));
-
       res.json({
         status: true,
         creator: "Matstoree",
@@ -87,9 +63,10 @@ module.exports = function (app) {
           title: song.title,
           artist: song.artist,
           duration: song.duration,
-          cover: song.thumbnail
+          cover: song.thumbnail,
+          url: song.url
         },
-        audio: audioUrl
+        audio: Buffer.from(data).toString("base64")
       });
     } catch (err) {
       res.json({
