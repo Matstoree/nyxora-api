@@ -230,7 +230,12 @@
     }
   ],
   "tools": [
-    
+    {
+  "name": "Video Transcript",
+  "desc": "Transcribe video to text",
+  "status": "Active",
+  "path": "/tools/video-transcript?apikey=&url="
+    },
     {
       "name": "Text-to-speech",
       "desc": "Tts anime character",
