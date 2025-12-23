@@ -19,7 +19,7 @@ module.exports = function (app) {
         });
       }
 
-      const input = url ? url : q;
+      const input = url || q;
 
       const { data: s } = await axios.get(
         `https://spotdown.org/api/song-details?url=${encodeURIComponent(input)}`,
@@ -42,7 +42,7 @@ module.exports = function (app) {
 
       const song = s.songs[0];
 
-      const { data } = await axios.post(
+      const { data: dl } = await axios.post(
         "https://spotdown.org/api/download",
         { url: song.url },
         {
@@ -51,10 +51,16 @@ module.exports = function (app) {
             referer: "https://spotdown.org/",
             "user-agent":
               "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
-          },
-          responseType: "arraybuffer"
+          }
         }
       );
+
+      if (!dl || !dl.data || !dl.data.url) {
+        return res.json({
+          status: false,
+          error: "Gagal mendapatkan audio url"
+        });
+      }
 
       res.json({
         status: true,
@@ -63,10 +69,9 @@ module.exports = function (app) {
           title: song.title,
           artist: song.artist,
           duration: song.duration,
-          cover: song.thumbnail,
-          url: song.url
+          cover: song.thumbnail
         },
-        audio: Buffer.from(data).toString("base64")
+        audio: dl.data.url
       });
     } catch (err) {
       res.json({
