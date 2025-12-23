@@ -3,104 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NyxoraApi - Modern API Platform</title>
+  <title>API'S Nyxora</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: 'Inter', sans-serif;
-      background: #0a0a0f;
-      color: #ffffff;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      position: relative;
       overflow-x: hidden;
     }
 
-    /* Animated gradient background */
-    .bg-gradient {
+    body::before {
+      content: '';
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      opacity: 0.1;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 119, 255, 0.3) 0%, transparent 50%);
+      pointer-events: none;
       z-index: 0;
-      animation: gradientShift 15s ease infinite;
     }
 
-    @keyframes gradientShift {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.2) rotate(180deg); }
-    }
-
-    /* Floating particles */
-    .particle {
-      position: fixed;
-      width: 3px;
-      height: 3px;
-      background: rgba(139, 92, 246, 0.6);
-      border-radius: 50%;
-      animation: float 20s infinite;
+    .container-main {
+      position: relative;
       z-index: 1;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
-    }
-
-    .container {
-      position: relative;
-      z-index: 10;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    /* Hero section */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      position: relative;
-    }
-
-    .hero-title {
-      font-size: clamp(3rem, 8vw, 7rem);
-      font-weight: 900;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1.5rem;
-      animation: fadeInUp 1s ease-out;
-      line-height: 1.1;
-    }
-
-    .hero-subtitle {
-      font-size: clamp(1.1rem, 2vw, 1.5rem);
-      color: #a0aec0;
-      max-width: 700px;
-      margin: 0 auto 3rem;
-      animation: fadeInUp 1s ease-out 0.2s backwards;
-      line-height: 1.6;
     }
 
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
       }
       to {
         opacity: 1;
@@ -108,494 +48,319 @@
       }
     }
 
-    /* Glowing button */
-    .btn-glow {
-      position: relative;
-      padding: 1.2rem 3rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      animation: fadeInUp 1s ease-out 0.4s backwards;
-      box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
     }
 
-    .btn-glow:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 50px rgba(102, 126, 234, 0.6);
+    .fade-in-up {
+      animation: fadeInUp 0.6s ease-out forwards;
     }
 
-    .btn-glow::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      transition: left 0.5s;
-    }
+    .delay-100 { animation-delay: 0.1s; opacity: 0; }
+    .delay-200 { animation-delay: 0.2s; opacity: 0; }
+    .delay-300 { animation-delay: 0.3s; opacity: 0; }
+    .delay-400 { animation-delay: 0.4s; opacity: 0; }
 
-    .btn-glow:hover::before {
-      left: 100%;
-    }
-
-    /* Stats grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin: 4rem 0;
-      animation: fadeInUp 1s ease-out 0.6s backwards;
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.05);
+    .stat-box {
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 2rem;
-      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
     }
 
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .stat-card:hover::before {
-      opacity: 1;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-10px);
-      border-color: rgba(102, 126, 234, 0.5);
-      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-    }
-
-    .stat-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #ffffff;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      font-size: 0.95rem;
-      color: #a0aec0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* Feature cards */
-    .features-section {
-      margin: 8rem 0;
-    }
-
-    .section-title {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 800;
-      text-align: center;
-      margin-bottom: 4rem;
-      background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
+    .stat-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+      background: rgba(255, 255, 255, 1);
     }
 
     .feature-card {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
-      padding: 2.5rem;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-
-    .feature-card:hover::after {
-      opacity: 1;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
     }
 
     .feature-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(102, 126, 234, 0.4);
-      box-shadow: 0 25px 70px rgba(102, 126, 234, 0.2);
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(118, 75, 162, 0.3);
+      background: rgba(255, 255, 255, 1);
     }
 
-    .feature-icon {
-      width: 70px;
-      height: 70px;
+    .btn-primary {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-      position: relative;
-      z-index: 1;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
 
-    .feature-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      color: #ffffff;
-      position: relative;
-      z-index: 1;
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     }
 
-    .feature-description {
-      color: #a0aec0;
-      line-height: 1.7;
-      position: relative;
-      z-index: 1;
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      color: #667eea;
+      transition: all 0.3s ease;
     }
 
-    /* CTA Section */
-    .cta-section {
-      text-align: center;
-      padding: 6rem 2rem;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      margin: 6rem 0;
-      position: relative;
-      overflow: hidden;
+    .btn-secondary:hover {
+      border-color: #667eea;
+      background: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
     }
 
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
-      animation: rotate 20s linear infinite;
+    .header-icon {
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
     }
 
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    .cta-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .cta-title {
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .cta-text {
-      font-size: 1.2rem;
-      color: #a0aec0;
-      margin-bottom: 3rem;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+    .icon-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .btn-group {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
+    .step-number {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
 
-    .btn-outline {
-      padding: 1.2rem 3rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      background: transparent;
-      border: 2px solid rgba(102, 126, 234, 0.5);
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-outline:hover {
-      background: rgba(102, 126, 234, 0.1);
-      border-color: #667eea;
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 3rem 0;
-      color: #718096;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      margin-top: 6rem;
-    }
-
-    @media (max-width: 768px) {
-      .btn-group {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .btn-glow, .btn-outline {
-        width: 100%;
-        max-width: 300px;
-      }
+    .endpoint-item {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-left: 3px solid #667eea;
     }
   </style>
 </head>
 <body>
 
-  <!-- Animated background -->
-  <div class="bg-gradient"></div>
+<div class="max-w-6xl mx-auto px-4 py-8 container-main">
 
-  <!-- Floating particles -->
-  <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-  <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
-  <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
-  <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
-  <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
-  <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
-  <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
-  <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
-  <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+  <!-- Header -->
+  <header class="text-center mb-12 fade-in-up">
+    <div class="mb-4">
+      <i class="fas fa-code text-5xl text-white header-icon"></i>
+    </div>
+    <h1 class="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
+      NyxoraApi
+    </h1>
+    <p class="text-white text-lg md:text-xl max-w-2xl mx-auto drop-shadow">
+      Simple API with easy and minimalistic integration for WhatsApp Bot Developers.
+    </p>
+  </header>
 
-  <div class="container">
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap justify-center gap-4 mb-12 fade-in-up delay-100">
+    <button onclick="window.location.href='/docs'"
+      class="btn-primary text-white font-semibold px-8 py-3 rounded-lg flex items-center gap-3">
+      <i class="fas fa-book"></i> 
+      <span>Dokumentasi</span>
+    </button>
+    <button onclick="window.location.href='https://wa.me/6281459124126'"
+      class="btn-secondary font-semibold px-8 py-3 rounded-lg flex items-center gap-3">
+      <i class="fab fa-whatsapp"></i> 
+      <span>Contact Admin</span>
+    </button>
+    <button onclick="window.location.href='/panel/'"
+      class="btn-secondary font-semibold px-8 py-3 rounded-lg flex items-center gap-3">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Beli Panel</span>
+    </button>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 fade-in-up delay-200">
+    <div id="battery" class="stat-box p-6 rounded-xl text-center shadow-lg">
+      <i class="fas fa-battery-full text-3xl mb-2 icon-gradient"></i>
+      <div class="text-gray-700 text-sm font-medium">Battery: Loading...</div>
+    </div>
+    <div id="clock" class="stat-box p-6 rounded-xl text-center shadow-lg">
+      <i class="far fa-clock text-3xl mb-2 icon-gradient"></i>
+      <div class="text-gray-700 text-sm font-medium">Time: Loading...</div>
+    </div>
+    <div id="total-endpoint" class="stat-box p-6 rounded-xl text-center shadow-lg">
+      <i class="fas fa-server text-3xl mb-2 icon-gradient"></i>
+      <div class="text-gray-700 text-sm font-medium">Endpoint: Loading...</div>
+    </div>
+    <div id="total-request" class="stat-box p-6 rounded-xl text-center shadow-lg">
+      <i class="fas fa-chart-line text-3xl mb-2 icon-gradient"></i>
+      <div class="text-gray-700 text-sm font-medium">Request: Loading...</div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <section class="max-w-5xl mx-auto fade-in-up delay-300">
+    <h2 class="text-3xl font-bold text-center mb-8 text-white drop-shadow-lg">Fitur Unggulan</h2>
     
-    <!-- Hero Section -->
-    <section class="hero">
-      <h1 class="hero-title">NyxoraApi</h1>
-      <p class="hero-subtitle">
-        Next-generation API platform designed for modern WhatsApp bot developers. 
-        Fast, secure, and incredibly simple to integrate.
-      </p>
-      <button class="btn-glow" onclick="window.location.href='/docs'">
-        <i class="fas fa-rocket"></i> Explore Documentation
-      </button>
-    </section>
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <!-- Feature 1 -->
+      <div class="feature-card p-6 rounded-xl shadow-lg">
+        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-lightning-bolt text-2xl icon-gradient"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 gradient-text">Fast Response</h3>
+        <p class="text-gray-700 text-sm">API dengan response time yang cepat dan stabil untuk kebutuhan bot Anda.</p>
+      </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card" id="battery-card">
-        <i class="fas fa-bolt stat-icon"></i>
-        <div class="stat-value" id="battery-value">--</div>
-        <div class="stat-label">Battery Level</div>
+      <!-- Feature 2 -->
+      <div class="feature-card p-6 rounded-xl shadow-lg">
+        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-shield-alt text-2xl icon-gradient"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 gradient-text">Secure & Reliable</h3>
+        <p class="text-gray-700 text-sm">Keamanan data terjamin dengan enkripsi dan sistem yang handal 24/7.</p>
       </div>
-      
-      <div class="stat-card" id="clock-card">
-        <i class="far fa-clock stat-icon"></i>
-        <div class="stat-value" id="clock-value">--:--:--</div>
-        <div class="stat-label">Real Time</div>
-      </div>
-      
-      <div class="stat-card" id="endpoint-card">
-        <i class="fas fa-server stat-icon"></i>
-        <div class="stat-value" id="endpoint-value">--</div>
-        <div class="stat-label">Total Endpoints</div>
-      </div>
-      
-      <div class="stat-card" id="request-card">
-        <i class="fas fa-chart-line stat-icon"></i>
-        <div class="stat-value" id="request-value">--</div>
-        <div class="stat-label">API Requests</div>
+
+      <!-- Feature 3 -->
+      <div class="feature-card p-6 rounded-xl shadow-lg">
+        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-puzzle-piece text-2xl icon-gradient"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2 gradient-text">Easy Integration</h3>
+        <p class="text-gray-700 text-sm">Dokumentasi lengkap dan mudah dipahami untuk integrasi yang cepat.</p>
       </div>
     </div>
 
-    <!-- Features Section -->
-    <section class="features-section">
-      <h2 class="section-title">Why Choose NyxoraApi?</h2>
-      
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-lightning-bolt"></i>
+    <!-- Getting Started -->
+    <div class="glass-card rounded-xl shadow-lg p-8 mb-6">
+      <h3 class="text-2xl font-bold mb-4 gradient-text flex items-center">
+        <i class="fas fa-rocket mr-3"></i>
+        Getting Started
+      </h3>
+      <p class="text-gray-700 mb-4">Mulai gunakan API dalam 3 langkah mudah:</p>
+      <div class="space-y-3">
+        <div class="flex items-start">
+          <div class="w-8 h-8 step-number text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0 font-semibold">1</div>
+          <div>
+            <h4 class="font-semibold text-gray-800">Dapatkan API Key</h4>
+            <p class="text-sm text-gray-600">Hubungi owner untuk mendapatkan apikey.</p>
           </div>
-          <h3 class="feature-title">Lightning Fast</h3>
-          <p class="feature-description">
-            Experience blazing-fast response times with our optimized infrastructure. Your bot users won't have to wait.
-          </p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-shield-alt"></i>
+        <div class="flex items-start">
+          <div class="w-8 h-8 step-number text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0 font-semibold">2</div>
+          <div>
+            <h4 class="font-semibold text-gray-800">Baca Dokumentasi</h4>
+            <p class="text-sm text-gray-600">Pelajari endpoint yang tersedia dan cara penggunaannya.</p>
           </div>
-          <h3 class="feature-title">Enterprise Security</h3>
-          <p class="feature-description">
-            Bank-grade encryption and security protocols to keep your data safe. Available 24/7 with 99.9% uptime.
-          </p>
         </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-code"></i>
+        <div class="flex items-start">
+          <div class="w-8 h-8 step-number text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0 font-semibold">3</div>
+          <div>
+            <h4 class="font-semibold text-gray-800">Mulai Integrasi</h4>
+            <p class="text-sm text-gray-600">Integrasikan API ke bot Anda dan nikmati fitur-fiturnya.</p>
           </div>
-          <h3 class="feature-title">Developer Friendly</h3>
-          <p class="feature-description">
-            Clean documentation, intuitive endpoints, and code examples in multiple languages. Start building in minutes.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-brain"></i>
-          </div>
-          <h3 class="feature-title">AI Powered</h3>
-          <p class="feature-description">
-            Integrated AI capabilities including ChatGPT, image processing, and intelligent content analysis.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-download"></i>
-          </div>
-          <h3 class="feature-title">Media Downloader</h3>
-          <p class="feature-description">
-            Download content from YouTube, TikTok, Instagram, and more. High-quality output with fast processing.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-infinity"></i>
-          </div>
-          <h3 class="feature-title">Scalable</h3>
-          <p class="feature-description">
-            Built to grow with you. From small projects to enterprise applications, we handle any scale effortlessly.
-          </p>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="cta-content">
-        <h2 class="cta-title">Ready to Build Something Amazing?</h2>
-        <p class="cta-text">
-          Join hundreds of developers who are already building powerful WhatsApp bots with NyxoraApi
-        </p>
-        <div class="btn-group">
-          <button class="btn-glow" onclick="window.location.href='https://wa.me/6281459124126'">
-            <i class="fab fa-whatsapp"></i> Contact Admin
-          </button>
-          <button class="btn-outline" onclick="window.location.href='/panel/'">
-            <i class="fas fa-shopping-bag"></i> Beli Panel
-          </button>
+    <!-- Popular Endpoints -->
+    <div class="glass-card rounded-xl shadow-lg p-8">
+      <h3 class="text-2xl font-bold mb-4 gradient-text flex items-center">
+        <i class="fas fa-fire mr-3"></i>
+        Popular Endpoints
+      </h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="flex items-center p-3 endpoint-item rounded-lg">
+          <i class="fas fa-download mr-3 icon-gradient"></i>
+          <span class="text-gray-700 font-medium">Downloader (YouTube, TikTok, Instagram)</span>
+        </div>
+        <div class="flex items-center p-3 endpoint-item rounded-lg">
+          <i class="fas fa-brain mr-3 icon-gradient"></i>
+          <span class="text-gray-700 font-medium">AI & ChatGPT Integration</span>
+        </div>
+        <div class="flex items-center p-3 endpoint-item rounded-lg">
+          <i class="fas fa-image mr-3 icon-gradient"></i>
+          <span class="text-gray-700 font-medium">Image Processing & Editor</span>
+        </div>
+        <div class="flex items-center p-3 endpoint-item rounded-lg">
+          <i class="fas fa-search mr-3 icon-gradient"></i>
+          <span class="text-gray-700 font-medium">Search & Information API</span>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer>
-      <p>© 2026 NyxoraApi - Crafted with ❤️ for Developers Worldwide</p>
-    </footer>
+  </section>
 
-  </div>
+  <!-- Footer -->
+  <footer class="text-center mt-12 text-white drop-shadow text-sm fade-in-up delay-400">
+    <p>© 2026 NyxoraApi - Built for Developers</p>
+  </footer>
 
-  <script>
-    // Battery Status
-    navigator.getBattery().then(battery => {
-      function updateBattery() {
-        const level = Math.round(battery.level * 100);
-        document.getElementById('battery-value').textContent = level + '%';
-      }
-      updateBattery();
-      battery.addEventListener('levelchange', updateBattery);
-    }).catch(() => {
-      document.getElementById('battery-value').textContent = 'N/A';
+</div>
+
+<!-- JavaScript -->
+<script>
+  // Battery Status
+  navigator.getBattery().then(battery => {
+    function updateBatteryStatus() {
+      const level = Math.round(battery.level * 100);
+      document.getElementById('battery').innerHTML = `
+        <i class="fas fa-battery-full text-3xl mb-2 icon-gradient"></i>
+        <div class="text-gray-700 text-sm font-medium">Battery: ${level}%</div>
+      `;
+    }
+    updateBatteryStatus();
+    battery.addEventListener('levelchange', updateBatteryStatus);
+  });
+
+  // Real Time Clock
+  function updateTime() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    document.getElementById('clock').innerHTML = `
+      <i class="far fa-clock text-3xl mb-2 icon-gradient"></i>
+      <div class="text-gray-700 text-sm font-medium">Time: ${hours}:${minutes}:${seconds}</div>
+    `;
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // Fetch Status
+  fetch('/api/status')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('total-endpoint').innerHTML = `
+        <i class="fas fa-server text-3xl mb-2 icon-gradient"></i>
+        <div class="text-gray-700 text-sm font-medium">Endpoint: ${data.result.totalfitur}</div>
+      `;
+      document.getElementById('total-request').innerHTML = `
+        <i class="fas fa-chart-line text-3xl mb-2 icon-gradient"></i>
+        <div class="text-gray-700 text-sm font-medium">Request: ${data.result.totalrequest}</div>
+      `;
+    })
+    .catch(err => {
+      document.getElementById('total-endpoint').innerHTML = `
+        <i class="fas fa-server text-3xl mb-2 icon-gradient"></i>
+        <div class="text-gray-700 text-sm font-medium">Endpoint: Error</div>
+      `;
+      document.getElementById('total-request').innerHTML = `
+        <i class="fas fa-chart-line text-3xl mb-2 icon-gradient"></i>
+        <div class="text-gray-700 text-sm font-medium">Request: Error</div>
+      `;
+      console.error(err);
     });
-
-    // Real Time Clock
-    function updateClock() {
-      const now = new Date();
-      const time = now.toLocaleTimeString('en-US', { hour12: false });
-      document.getElementById('clock-value').textContent = time;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Fetch API Stats
-    fetch('/api/status')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('endpoint-value').textContent = data.result.totalfitur;
-        document.getElementById('request-value').textContent = data.result.totalrequest.toLocaleString();
-      })
-      .catch(() => {
-        document.getElementById('endpoint-value').textContent = 'Error';
-        document.getElementById('request-value').textContent = 'Error';
-      });
-
-    // Animate numbers counting up
-    function animateValue(id, start, end, duration) {
-      const obj = document.getElementById(id);
-      const range = end - start;
-      const increment = end > start ? 1 : -1;
-      const stepTime = Math.abs(Math.floor(duration / range));
-      let current = start;
-      
-      const timer = setInterval(() => {
-        current += increment;
-        obj.textContent = current;
-        if (current === end) {
-          clearInterval(timer);
-        }
-      }, stepTime);
-    }
-  </script>
+</script>
 
 </body>
 </html>
