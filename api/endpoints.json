@@ -193,6 +193,12 @@
       "path": "/search/bstation-search?apikey=&q="
     },
     {
+  "name": "Pinterest Video",
+  "desc": "Search pinterest video",
+  "status": "Active",
+  "path": "/search/pinterest-video?apikey=&q="
+    },
+    {
       "name": "Pinterest",
       "desc": "Search pinterest foto",
       "status": "Active",
