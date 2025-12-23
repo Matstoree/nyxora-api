@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = function (app) {
   app.get("/download/spotify-play", async (req, res) => {
     try {
-      const { apikey, url } = req.query;
+      const { apikey, url, q } = req.query;
 
       if (!global.apikey.includes(apikey)) {
         return res.json({
@@ -12,15 +12,17 @@ module.exports = function (app) {
         });
       }
 
-      if (!url) {
+      if (!url && !q) {
         return res.json({
           status: false,
-          error: "Url tidak boleh kosong"
+          error: "Url atau query tidak boleh kosong"
         });
       }
 
+      const input = url ? url : q;
+
       const { data: s } = await axios.get(
-        `https://spotdown.org/api/song-details?url=${encodeURIComponent(url)}`,
+        `https://spotdown.org/api/song-details?url=${encodeURIComponent(input)}`,
         {
           headers: {
             origin: "https://spotdown.org",
@@ -31,13 +33,14 @@ module.exports = function (app) {
         }
       );
 
-      const song = s.songs[0];
-      if (!song) {
+      if (!s || !s.songs || s.songs.length === 0) {
         return res.json({
           status: false,
           error: "Track tidak ditemukan"
         });
       }
+
+      const song = s.songs[0];
 
       const { data } = await axios.post(
         "https://spotdown.org/api/download",
