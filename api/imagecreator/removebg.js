@@ -1,56 +1,32 @@
 const axios = require("axios");
 const FormData = require("form-data");
-const fs = require("fs");
-const path = require("path");
-
-async function getToken() {
-  const { data } = await axios.get(
-    "https://removal.ai/wp-admin/admin-ajax.php?action=ajax_get_webtoken&security=1cf5632768"
-  );
-  return data.data.webtoken;
-}
 
 async function removeBgFromUrl(imageUrl) {
-  const tmpPath = path.join(__dirname, "tmp_removebg.png");
-
-  const img = await axios.get(imageUrl, { responseType: "stream" });
-  const writer = fs.createWriteStream(tmpPath);
-  img.data.pipe(writer);
-
-  await new Promise((resolve, reject) => {
-    writer.on("finish", resolve);
-    writer.on("error", reject);
+  const img = await axios.get(imageUrl, {
+    responseType: "arraybuffer"
   });
 
   const form = new FormData();
-  form.append("image_file", fs.createReadStream(tmpPath));
-
-  const token = await getToken();
+  form.append("format", "png");
+  form.append("model", "v1");
+  form.append("image", Buffer.from(img.data), {
+    filename: "image.png",
+    contentType: "image/png"
+  });
 
   const { data } = await axios.post(
-    "https://api.removal.ai/3.0/remove",
+    "https://api2.pixelcut.app/image/matte/v1",
     form,
     {
       headers: {
         ...form.getHeaders(),
-        "user-agent":
-          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36",
-        origin: "https://removal.ai",
-        accept: "*/*",
-        "web-token": token
-      }
+        "x-client-version": "web"
+      },
+      responseType: "arraybuffer"
     }
   );
 
-  fs.unlinkSync(tmpPath);
-
-  return {
-    url: data.url,
-    low_resolusi: data.low_resolution || null,
-    demo: data.preview_demo || null,
-    extra: data.extra || null,
-    original: data.original
-  };
+  return data;
 }
 
 module.exports = function (app) {
@@ -72,13 +48,14 @@ module.exports = function (app) {
         });
       }
 
-      const result = await removeBgFromUrl(url);
+      const buffer = await removeBgFromUrl(url);
 
-      res.json({
-        status: true,
-        creator: "Matstoree",
-        result
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Disposition": "inline; filename=removebg.png"
       });
+
+      res.send(Buffer.from(buffer));
     } catch (err) {
       res.json({
         status: false,
