@@ -1,8 +1,8 @@
 const axios = require("axios");
 
 async function mlregion(user_id, zone_id) {
-  if (!user_id || isNaN(user_id)) throw new Error("Invalid user id input");
-  if (!zone_id || isNaN(zone_id)) throw new Error("Invalid zone id input");
+  if (!user_id || isNaN(user_id)) throw new Error("Invalid user id");
+  if (!zone_id || isNaN(zone_id)) throw new Error("Invalid zone id");
 
   const { data } = await axios.post(
     "https://api.nekolabs.web.id/px?url=https://api-gw-prd.vocagame.com/gateway-ms/order/v1/client/transactions/verify",
@@ -28,7 +28,9 @@ async function mlregion(user_id, zone_id) {
     }
   );
 
-  return data?.result?.content;
+  if (!data?.result?.content) throw new Error("Data tidak ditemukan");
+
+  return data.result.content;
 }
 
 module.exports = function (app) {
@@ -37,10 +39,7 @@ module.exports = function (app) {
       const { apikey, user_id, zone_id } = req.query;
 
       if (!global.apikey.includes(apikey)) {
-        return res.json({
-          status: false,
-          error: "Apikey invalid"
-        });
+        return res.json({ status: false, error: "Apikey invalid" });
       }
 
       if (!user_id || !zone_id) {
@@ -50,19 +49,18 @@ module.exports = function (app) {
         });
       }
 
-      const result = await mlregion(user_id, zone_id);
-
-      if (!result) {
-        return res.json({
-          status: false,
-          error: "Data tidak ditemukan"
-        });
-      }
+      const data = await mlregion(user_id, zone_id);
 
       res.json({
         status: true,
         creator: "Matstoree",
-        result
+        result: {
+          user_id,
+          zone_id,
+          username: data.username,
+          country: data.country_of_origin?.toUpperCase(),
+          raw: data
+        }
       });
     } catch (e) {
       res.json({
