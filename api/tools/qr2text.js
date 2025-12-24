@@ -1,31 +1,4 @@
 const axios = require("axios");
-const jsQR = require("jsqr");
-const { createCanvas, loadImage } = require("canvas");
-
-async function readQrCodeFromUrl(url) {
-  const response = await axios.get(url, {
-    responseType: "arraybuffer",
-    timeout: 30000,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-  });
-
-  const image = await loadImage(Buffer.from(response.data));
-  const canvas = createCanvas(image.width, image.height);
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(image, 0, 0);
-
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-  if (!code) {
-    throw new Error("QR code tidak ditemukan");
-  }
-
-  return code.data;
-}
 
 module.exports = function (app) {
   app.get("/tools/qr2text", async (req, res) => {
@@ -46,13 +19,30 @@ module.exports = function (app) {
         });
       }
 
-      const text = await readQrCodeFromUrl(url.trim());
+      const { data } = await axios.get(
+        "https://api.qrserver.com/v1/read-qr-code/",
+        {
+          params: { fileurl: url }
+        }
+      );
+
+      if (
+        !data ||
+        !data[0] ||
+        !data[0].symbol ||
+        !data[0].symbol[0].data
+      ) {
+        return res.json({
+          status: false,
+          error: "QR code tidak ditemukan"
+        });
+      }
 
       res.json({
         status: true,
         creator: "Matstoree",
         result: {
-          text
+          text: data[0].symbol[0].data
         }
       });
     } catch (err) {
