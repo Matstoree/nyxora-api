@@ -1,25 +1,5 @@
-const { chromium } = require("playwright");
 
-async function igdl(url) {
-  const browser = await chromium.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
-  });
-
-  const page = await browser.newPage();
-  await page.goto("https://fastdl.app/id", { waitUntil: "networkidle" });
-  await page.fill("#search-form-input", url);
-  await page.click("#searchFormButton");
-  await page.waitForSelector("a.button.button__download");
-
-  const download = await page.$$eval(
-    "a.button.button__download",
-    els => els.map(el => el.href)
-  );
-
-  await browser.close();
-  return download;
-}
+const axios = require("axios");
 
 module.exports = function (app) {
   app.get("/download/instagram", async (req, res) => {
@@ -40,19 +20,29 @@ module.exports = function (app) {
         });
       }
 
-      const result = await igdl(url);
+      const { data } = await axios.get(
+        "https://api.deline.web.id/downloader/ig",
+        {
+          params: { url }
+        }
+      );
 
-      if (!result || result.length === 0) {
+      if (!data || !data.status) {
         return res.json({
           status: false,
-          error: "Media tidak ditemukan"
+          error: "Gagal mengambil media Instagram"
         });
       }
+
+      const media = data.result.media;
 
       res.json({
         status: true,
         creator: "Matstoree",
-        result
+        result: {
+          images: media.images || [],
+          videos: media.videos || []
+        }
       });
     } catch (err) {
       res.json({
