@@ -350,10 +350,10 @@
       "path": "/imagecreator/removebg?apikey=&url="
     },
     {
-      "name": "Upscale",
-      "desc": "Upscale image",
+      "name": "Hd",
+      "desc": "Hd image",
       "status": "Active",
-      "path": "/imagecreator/upscale?apikey=&url="
+      "path": "/imagecreator/hd?apikey=&url="
     },
     {
       "name": "Brat",
