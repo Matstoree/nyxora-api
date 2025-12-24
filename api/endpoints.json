@@ -1,12 +1,6 @@
 {
   "openai": [
     {
-      "name": "Deepseek",
-      "desc": "Deepseek ai",
-      "status": "Offline",
-      "path": "/ai/deepseek?apikey=&text="
-    },
-    {
       "name": "Openai",
       "desc": "Openai chat",
       "status": "Active",
@@ -255,12 +249,6 @@
   "path": "/tools/video-transcript?apikey=&url="
     },
     {
-      "name": "Text-to-speech",
-      "desc": "Tts anime character",
-      "status": "Active",
-      "path": "/tools/text-to-speech?apikey=&text="
-    },
-    {
       "name": "Screenshot Web",
       "desc": "Screenshot web url",
       "status": "Active",
@@ -349,12 +337,6 @@
     }
   ],
   "creator": [
-{
-  "name": "Edit Photo",
-  "desc": "Edit image with AI prompt",
-  "status": "Active",
-  "path": "/imagecreator/editphoto?apikey=&url=&prompt="
-},
     {
       "name": "Removebg",
       "desc": "Remove background image",
