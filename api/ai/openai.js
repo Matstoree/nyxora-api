@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = function (app) {
   app.get("/ai/openai", async (req, res) => {
     try {
-      const { apikey, text } = req.query;
+      const { apikey, text, prompt } = req.query;
 
       if (!global.apikey.includes(apikey)) {
         return res.json({
@@ -19,39 +19,32 @@ module.exports = function (app) {
         });
       }
 
-      const response = await axios.post(
-        "https://theturbochat.com/chat",
+      const response = await axios.get(
+        "https://api.deline.web.id/ai/openai",
         {
-          message: text,
-          model: "gpt-3.5-turbo",
-          language: "en"
-        },
-        {
-          headers: {
-            "Content-Type": "application/json"
+          params: {
+            text,
+            prompt
           }
         }
       );
 
-      const reply =
-        response.data?.choices?.[0]?.message?.content;
-
-      if (!reply) {
+      if (!response.data || !response.data.status) {
         return res.json({
           status: false,
-          error: "Jawaban kosong"
+          error: "Gagal mendapatkan respon AI"
         });
       }
 
       res.json({
         status: true,
         creator: "Matstoree",
-        result: reply.trim()
+        result: response.data.result
       });
     } catch (e) {
       res.json({
         status: false,
-        error: e.response?.data || e.message
+        error: e.message
       });
     }
   });
