@@ -1,45 +1,5 @@
 const axios = require("axios");
 
-async function gptimage(prompt, buffer) {
-  if (!prompt) throw new Error("Prompt is required");
-  if (!Buffer.isBuffer(buffer)) throw new Error("Image must be a buffer");
-
-  try {
-    const { data } = await axios.post(
-      "https://ghibli-proxy.netlify.app/.netlify/functions/ghibli-proxy",
-      {
-        image: "data:image/png;base64," + buffer.toString("base64"),
-        prompt: prompt,
-        model: "gpt-image-1",
-        n: 1,
-        size: "auto",
-        quality: "low"
-      },
-      {
-        timeout: 60000,
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-        headers: {
-          origin: "https://overchat.ai",
-          referer: "https://overchat.ai/",
-          "user-agent":
-            "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
-        }
-      }
-    );
-
-    const result = data?.data?.[0]?.b64_json;
-    if (!result) throw new Error("No result found");
-
-    return Buffer.from(result, "base64");
-  } catch (e) {
-    if (e.code === "ECONNRESET" || e.message.includes("socket hang up")) {
-      throw new Error("Server AI sedang sibuk, coba lagi");
-    }
-    throw new Error(e.message);
-  }
-}
-
 module.exports = function (app) {
   app.get("/imagecreator/editphoto", async (req, res) => {
     try {
@@ -59,19 +19,35 @@ module.exports = function (app) {
         });
       }
 
-      const img = await axios.get(url, {
-        responseType: "arraybuffer",
-        timeout: 30000
-      });
+      const response = await axios.get(
+        "https://api.alyachan.dev/api/ai-edit",
+        {
+          params: {
+            image: url,
+            prompt,
+            apikey: "umaasa"
+          }
+        }
+      );
 
-      const buffer = await gptimage(prompt, Buffer.from(img.data));
+      const resultUrl = response.data?.data?.images?.[0]?.url;
+      if (!resultUrl) {
+        return res.json({
+          status: false,
+          error: "API tidak mengembalikan hasil"
+        });
+      }
+
+      const img = await axios.get(resultUrl, {
+        responseType: "arraybuffer"
+      });
 
       res.set({
         "Content-Type": "image/png",
         "Content-Disposition": "inline; filename=edit.png"
       });
 
-      res.send(buffer);
+      res.send(Buffer.from(img.data));
     } catch (e) {
       res.json({
         status: false,
