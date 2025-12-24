@@ -343,6 +343,12 @@
     }
   ],
   "creator": [
+{
+  "name": "Edit Photo",
+  "desc": "Edit image with AI prompt",
+  "status": "Active",
+  "path": "/imagecreator/editphoto?apikey=&url=&prompt="
+},
     {
       "name": "Removebg",
       "desc": "Remove background image",
