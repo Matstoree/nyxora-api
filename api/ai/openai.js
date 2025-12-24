@@ -1,64 +1,58 @@
-const fetch = require('node-fetch');
+const axios = require("axios");
 
-module.exports = function(app) {
-  const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || "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";
-
-  async function OpenAi(teks) {
+module.exports = function (app) {
+  app.get("/ai/openai", async (req, res) => {
     try {
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
-          "Content-Type": "application/json"
-          // Optional headers:
-          // "HTTP-Referer": "",
-          // "X-Title": ""
-        },
-        body: JSON.stringify({
-          model: "meta-llama/llama-4-maverick:free",
-          messages: [
-            {
-              role: "user",
-              content: [
-              { type: "text", text: teks }
-              ]
-            }
-          ]
-        })
-      });
+      const { apikey, text } = req.query;
 
-      const data = await response.json();
-
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error("Invalid response from Deepseek API");
+      if (!global.apikey.includes(apikey)) {
+        return res.json({
+          status: false,
+          error: "Apikey invalid"
+        });
       }
 
-      return data.choices[0].message.content.trim();
+      if (!text) {
+        return res.json({
+          status: false,
+          error: "Text tidak boleh kosong"
+        });
+      }
 
-    } catch (err) {
-      throw new Error("Failed to fetch from Deepseek API: " + err.message);
-    }
-  }
+      const response = await axios.post(
+        "https://theturbochat.com/chat",
+        {
+          message: text,
+          model: "gpt-3.5-turbo",
+          language: "en"
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
 
-  app.get('/ai/openai', async (req, res) => {
-    const { text, apikey } = req.query;
+      const reply =
+        response.data?.choices?.[0]?.message?.content;
 
-    if (!text) {
-      return res.json({ status: false, error: 'Text is required' });
-    }
+      if (!reply) {
+        return res.json({
+          status: false,
+          error: "Jawaban kosong"
+        });
+      }
 
-    if (!apikey || !global.apikey.includes(apikey)) {
-      return res.json({ status: false, error: 'Invalid or missing API key' });
-    }
-
-    try {
-      const result = await OpenAi(text);
-      res.status(200).json({
+      res.json({
         status: true,
-        result
+        creator: "Matstoree",
+        result: reply.trim()
       });
-    } catch (error) {
-      res.status(500).json({ status: false, error: error.message });
+    } catch (e) {
+      res.json({
+        status: false,
+        error: e.response?.data || e.message
+      });
     }
   });
 };
