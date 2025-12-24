@@ -1,34 +1,6 @@
 const axios = require("axios");
 const FormData = require("form-data");
 
-async function removeBgFromUrl(imageUrl) {
-  const img = await axios.get(imageUrl, {
-    responseType: "arraybuffer"
-  });
-
-  const form = new FormData();
-  form.append("format", "png");
-  form.append("model", "v1");
-  form.append("image", Buffer.from(img.data), {
-    filename: "image.png",
-    contentType: "image/png"
-  });
-
-  const { data } = await axios.post(
-    "https://api2.pixelcut.app/image/matte/v1",
-    form,
-    {
-      headers: {
-        ...form.getHeaders(),
-        "x-client-version": "web"
-      },
-      responseType: "arraybuffer"
-    }
-  );
-
-  return data;
-}
-
 module.exports = function (app) {
   app.get("/imagecreator/removebg", async (req, res) => {
     try {
@@ -48,14 +20,35 @@ module.exports = function (app) {
         });
       }
 
-      const buffer = await removeBgFromUrl(url);
+      const img = await axios.get(url, {
+        responseType: "arraybuffer"
+      });
+
+      const form = new FormData();
+      form.append("format", "png");
+      form.append("model", "v1");
+      form.append("image", Buffer.from(img.data), {
+        filename: "image.png"
+      });
+
+      const response = await axios.post(
+        "https://api2.pixelcut.app/image/matte/v1",
+        form,
+        {
+          headers: {
+            ...form.getHeaders(),
+            "x-client-version": "web"
+          },
+          responseType: "arraybuffer"
+        }
+      );
 
       res.set({
         "Content-Type": "image/png",
         "Content-Disposition": "inline; filename=removebg.png"
       });
 
-      res.send(Buffer.from(buffer));
+      res.send(Buffer.from(response.data));
     } catch (err) {
       res.json({
         status: false,
