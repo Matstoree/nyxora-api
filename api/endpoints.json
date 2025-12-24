@@ -286,6 +286,12 @@
       "path": "/tools/whoip?apikey=&ip="
     },
     {
+  "name": "QR To Text",
+  "desc": "Decode QR code from image",
+  "status": "Active",
+  "path": "/tools/qr2text?apikey=&url="
+    },
+    {
       "name": "Emoji Mix",
       "desc": "Emoji mix converter",
       "status": "Active",
