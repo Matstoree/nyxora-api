@@ -1,59 +1,39 @@
 const axios = require("axios");
 const FormData = require("form-data");
-const { fileTypeFromBuffer } = require("file-type");
 const path = require("path");
+const { fileTypeFromBuffer } = require("file-type");
 
-// ===================== TMPFILES UPLOAD =====================
-async function uploadImage(buffer) {
-  const { ext, mime } = await fileTypeFromBuffer(buffer);
-  const form = new FormData();
-  form.append("file", buffer, { filename: `tmp.${ext}`, contentType: mime });
-
-  const { data } = await axios.post(
-    "https://tmpfiles.org/api/v1/upload",
-    form,
-    { headers: form.getHeaders() }
-  );
-
-  const match = /https?:\/\/tmpfiles.org\/(.*)/.exec(data.data.url);
-  return `https://tmpfiles.org/dl/${match[1]}`;
-}
-
-// ===================== ILOVEIMG UPSCALE =====================
 class UpscaleImageAPI {
-  api = null;
-  server = null;
-  taskId = null;
-  token = null;
+  constructor() {
+    this.api = null;
+    this.server = null;
+    this.taskId = null;
+    this.token = null;
+  }
 
   async getTaskId() {
-    const { data: html } = await axios.get(
-      "https://www.iloveimg.com/upscale-image",
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome Mobile Safari/537.36"
-        }
+    const { data: html } = await axios.get("https://www.iloveimg.com/upscale-image", {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
       }
-    );
+    });
 
     const tokenMatches = html.match(/(ey[a-zA-Z0-9?%-_/]+)/g);
-    if (!tokenMatches || tokenMatches.length < 2)
-      throw new Error("Token not found");
+    if (!tokenMatches || tokenMatches.length < 2) throw new Error("Token not found");
 
     this.token = tokenMatches[1];
 
     const configMatch = html.match(/var ilovepdfConfig = ({.*?});/s);
-    if (!configMatch) throw new Error("Config not found");
+    if (!configMatch) throw new Error("Server config not found");
 
     const configJson = JSON.parse(configMatch[1]);
-    this.server =
-      configJson.servers[
-        Math.floor(Math.random() * configJson.servers.length)
-      ];
+    const servers = configJson.servers;
+    if (!servers || !servers.length) throw new Error("Server empty");
 
-    this.taskId =
-      html.match(/ilovepdfConfig\.taskId\s*=\s*['"](\w+)['"]/)?.[1];
+    this.server = servers[Math.floor(Math.random() * servers.length)];
+    this.taskId = html.match(/ilovepdfConfig\.taskId\s*=\s*['"](\w+)['"]/)?.[1];
+    if (!this.taskId) throw new Error("Task ID not found");
 
     this.api = axios.create({
       baseURL: `https://${this.server}.iloveimg.com`,
@@ -62,24 +42,18 @@ class UpscaleImageAPI {
         Origin: "https://www.iloveimg.com",
         Referer: "https://www.iloveimg.com/",
         "User-Agent":
-          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome Mobile Safari/537.36"
+          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
       }
     });
-
-    if (!this.taskId) throw new Error("Task ID not found");
   }
 
   async uploadFromUrl(imageUrl) {
-    const imageResponse = await axios.get(imageUrl, {
-      responseType: "arraybuffer"
-    });
+    const image = await axios.get(imageUrl, { responseType: "arraybuffer" });
+    const type = await fileTypeFromBuffer(image.data);
+    if (!type || !type.mime.startsWith("image/")) throw new Error("Invalid image");
 
-    const fileType = await fileTypeFromBuffer(imageResponse.data);
-    if (!fileType || !fileType.mime.startsWith("image/"))
-      throw new Error("Invalid image");
-
-    const buffer = Buffer.from(imageResponse.data);
-    const fileName = `image.${fileType.ext}`;
+    const buffer = Buffer.from(image.data);
+    const fileName = path.basename(new URL(imageUrl).pathname) || `image.${type.ext}`;
 
     const form = new FormData();
     form.append("name", fileName);
@@ -87,62 +61,54 @@ class UpscaleImageAPI {
     form.append("chunks", "1");
     form.append("task", this.taskId);
     form.append("preview", "1");
-    form.append("file", buffer, {
-      filename: fileName,
-      contentType: fileType.mime
-    });
+    form.append("file", buffer, { filename: fileName, contentType: type.mime });
 
-    const { data } = await this.api.post("/v1/upload", form, {
+    const res = await this.api.post("/v1/upload", form, {
       headers: form.getHeaders()
     });
 
-    return data.server_filename;
+    return res.data.server_filename;
   }
 
-  async upscale(serverFilename, scale = 4) {
+  async upscale(serverFilename) {
     const form = new FormData();
     form.append("task", this.taskId);
     form.append("server_filename", serverFilename);
-    form.append("scale", scale.toString());
+    form.append("scale", "4");
 
-    const { data } = await this.api.post("/v1/upscale", form, {
+    const res = await this.api.post("/v1/upscale", form, {
       headers: form.getHeaders(),
       responseType: "arraybuffer"
     });
 
-    return Buffer.from(data);
+    return res.data;
   }
 }
 
-async function upscaleFromUrl(imageUrl, scale = 4) {
-  const upscaler = new UpscaleImageAPI();
-  await upscaler.getTaskId();
-  const serverFile = await upscaler.uploadFromUrl(imageUrl);
-  return await upscaler.upscale(serverFile, scale);
-}
-
-// ===================== REST API =====================
 module.exports = function (app) {
-  app.get("/imagecreator/upscale", async (req, res) => {
+  app.get("/imagecreator/hd", async (req, res) => {
     try {
-      const { apikey, url, scale } = req.query;
+      const { apikey, url } = req.query;
 
       if (!global.apikey.includes(apikey)) {
         return res.json({ status: false, error: "Apikey invalid" });
       }
 
       if (!url) {
-        return res.json({ status: false, error: "URL is required" });
+        return res.json({ status: false, error: "Url gambar tidak boleh kosong" });
       }
 
-      const resultBuffer = await upscaleFromUrl(url, Number(scale) || 4);
-      const imageUrl = await uploadImage(resultBuffer);
+      const up = new UpscaleImageAPI();
+      await up.getTaskId();
+      const serverFilename = await up.uploadFromUrl(url);
+      const buffer = await up.upscale(serverFilename);
 
-      res.json({
-        status: true,
-        creator: "ItsMeMatt",
-        result: imageUrl
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Disposition": "inline; filename=hd.png"
       });
+
+      res.send(Buffer.from(buffer));
     } catch (e) {
       res.json({
         status: false,
