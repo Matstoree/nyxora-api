@@ -162,6 +162,12 @@
     }
   ],
   "search": [
+{
+  "name": "ML Region",
+  "desc": "Cek region Mobile Legends",
+  "status": "Active",
+  "path": "/search/ml-region?apikey=&user_id=&zone_id="
+},
    {
   "name": "Lyrics Search",
   "desc": "Search lyrics song",
