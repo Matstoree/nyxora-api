@@ -248,13 +248,7 @@
     }
   ],
 "tools": [
-    {
-  "name": "To URL",
-  "desc": "Convert media URL to API domain URL",
-  "status": "Active",
-  "path": "/tools/tourl?apikey=&url="
-},
-    {
+     {
   "name": "Video Transcript",
   "desc": "Transcribe video to text",
   "status": "Active",
