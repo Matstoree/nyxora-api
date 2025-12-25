@@ -1,104 +1,146 @@
-const axios = require('axios')
-const crypto = require('crypto')
 
-const savetube = {
-  api: {
-    base: "https://media.savetube.me/api",
-    cdn: "/random-cdn",
-    info: "/v2/info",
-    download: "/download"
+const axios = require("axios");
+const crypto = require("crypto");
+
+const yt = {
+  baseHeaders: {
+    accept: "application/json, text/plain, */*",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "user-agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    origin: "https://v2.yt1s.biz"
   },
-  headers: {
-    accept: '*/*',
-    'content-type': 'application/json',
-    origin: 'https://yt.savetube.me',
-    referer: 'https://yt.savetube.me/',
-    'user-agent': 'Postify/1.0.0'
-  },
-  youtube(url) {
+
+  extractId(url) {
     try {
-      const u = new URL(url)
-      if (u.hostname.includes('youtu.be')) {
-        return u.pathname.replace('/', '').slice(0, 11)
-      }
-      if (u.hostname.includes('youtube.com')) {
-        if (u.searchParams.get('v')) return u.searchParams.get('v').slice(0, 11)
-        if (u.pathname.startsWith('/shorts/')) return u.pathname.split('/shorts/')[1].slice(0, 11)
-        if (u.pathname.startsWith('/embed/')) return u.pathname.split('/embed/')[1].slice(0, 11)
-      }
-      return null
+      const u = new URL(url);
+      if (u.hostname === "youtu.be") return u.pathname.slice(1);
+      if (u.searchParams.get("v")) return u.searchParams.get("v");
+      if (u.pathname.includes("/shorts/"))
+        return u.pathname.split("/shorts/")[1].split(/[?&]/)[0];
+      if (u.pathname.includes("/embed/"))
+        return u.pathname.split("/embed/")[1].split(/[?&]/)[0];
+      return null;
     } catch {
-      return null
+      return null;
     }
   },
-  decrypt(enc) {
-    const key = Buffer.from('C5D58EF67A7584E4A29F6C35BBC4EB12', 'hex')
-    const buf = Buffer.from(enc, 'base64')
-    const iv = buf.slice(0, 16)
-    const data = buf.slice(16)
-    const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
-    return JSON.parse(Buffer.concat([decipher.update(data), decipher.final()]).toString())
+
+  async getSession() {
+    const r = await fetch("https://fast.dlsrv.online/", {
+      headers: this.baseHeaders
+    });
+    const token = r.headers.get("x-session-token");
+    if (!token) throw Error("Session token kosong");
+    return token;
   },
-  async getCDN() {
-    const { data } = await axios.get(this.api.base + this.api.cdn)
-    return data.cdn
-  },
-  async post(url, data) {
-    const res = await axios.post(url, data, { headers: this.headers })
-    return res.data
-  },
-  async mp3(url) {
-    const id = this.youtube(url)
-    if (!id) throw new Error('URL YouTube tidak valid')
-    const cdn = await this.getCDN()
-    const info = await this.post(`https://${cdn}${this.api.info}`, {
-      url: `https://www.youtube.com/watch?v=${id}`
-    })
-    const meta = this.decrypt(info.data)
-    const dl = await this.post(`https://${cdn}${this.api.download}`, {
-      id,
-      downloadType: 'audio',
-      quality: '128',
-      key: meta.key
-    })
-    return {
-      title: meta.title,
-      duration: meta.duration,
-      thumbnail: meta.thumbnail || `https://i.ytimg.com/vi/${id}/0.jpg`,
-      download: dl.data.downloadUrl
+
+  pow(session, path) {
+    let nonce = 0;
+    while (true) {
+      const h = crypto
+        .createHash("sha256")
+        .update(`${session}:${path}:${nonce}`)
+        .digest("hex");
+      if (h.startsWith("0000"))
+        return { nonce: String(nonce), powHash: h };
+      nonce++;
     }
+  },
+
+  sign(session, path, ts) {
+    const secret = "a8d4e2456d59b90c8402fc4f060982aa";
+    return crypto
+      .createHmac("sha256", secret)
+      .update(`${session}:${path}:${ts}`)
+      .digest("hex");
+  },
+
+  async request(path, body) {
+    const session = await this.getSession();
+    const ts = Date.now().toString();
+    const sig = this.sign(session, path, ts);
+    const { nonce, powHash } = this.pow(session, path);
+
+    const headers = {
+      "content-type": "application/json",
+      "x-api-auth":
+        "Ig9CxOQPYu3RB7GC21sOcgRPy4uyxFKTx54bFDu07G3eAMkrdVqXY9bBatu4WqTpkADrQ",
+      "x-session-token": session,
+      "x-signature": sig,
+      "x-signature-timestamp": ts,
+      nonce,
+      powhash: powHash,
+      ...this.baseHeaders
+    };
+
+    const r = await fetch(`https://fast.dlsrv.online/gateway${path}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    });
+
+    if (!r.ok) throw Error("Gagal mengambil data");
+    return r.json();
   }
-}
+};
 
 module.exports = function (app) {
 
-  app.get('/download/ytmp4', async (req, res) => {
+  // ================= YTMP4 =================
+  app.get("/download/ytmp4", async (req, res) => {
     try {
-      const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
-      if (!url) return res.json({ status: false, error: 'Url is required' })
-      const results = await global.fetchJson(
-        `https://ytdlpyton.nvlgroup.my.id/download/?url=${encodeURIComponent(url)}&resolution=360&mode=url`,
-        {
-          headers: { 'X-API-Key': process.env.YTDL_KEY || 'jarr' }
-        }
-      )
-      res.json({ status: true, result: results })
-    } catch (e) {
-      res.status(500).json({ status: false, error: e.message })
-    }
-  })
+      const { apikey, url, quality = "480p" } = req.query;
+      if (!global.apikey.includes(apikey))
+        return res.json({ status: false, error: "Apikey invalid" });
 
-  app.get('/download/ytmp3', async (req, res) => {
+      const id = yt.extractId(url);
+      if (!id)
+        return res.json({ status: false, error: "URL YouTube tidak valid" });
+
+      const q = quality.replace("p", "");
+      const data = await yt.request("/video", {
+        videoId: id,
+        quality: q
+      });
+
+      res.json({
+        status: true,
+        creator: "Matstoree",
+        type: "video",
+        quality,
+        result: data
+      });
+    } catch (e) {
+      res.json({ status: false, error: e.message });
+    }
+  });
+
+  // ================= YTMP3 =================
+  app.get("/download/ytmp3", async (req, res) => {
     try {
-      const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
-      if (!url) return res.json({ status: false, error: 'Url is required' })
-      const result = await savetube.mp3(url)
-      res.json({ status: true, result })
-    } catch (e) {
-      res.status(500).json({ status: false, error: e.message })
-    }
-  })
+      const { apikey, url } = req.query;
+      if (!global.apikey.includes(apikey))
+        return res.json({ status: false, error: "Apikey invalid" });
 
-}
+      const id = yt.extractId(url);
+      if (!id)
+        return res.json({ status: false, error: "URL YouTube tidak valid" });
+
+      const data = await yt.request("/audio", {
+        videoId: id,
+        quality: "128"
+      });
+
+      res.json({
+        status: true,
+        creator: "Matstoree",
+        type: "audio",
+        result: data
+      });
+    } catch (e) {
+      res.json({ status: false, error: e.message });
+    }
+  });
+
+};
