@@ -1,5 +1,5 @@
 {
-  "name": "UltraOlshop",
+  "name": "ItsMeMatt",
   "version": "1.0.0",
   "description": "A simple and customizable API documentation interface built with Express.js.",
   "main": "index.js",
@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --no-deprecation index.js"
   },
-  "author": "UltraOlshop",
+  "author": "ItsMeMatt",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
