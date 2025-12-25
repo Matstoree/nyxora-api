@@ -1,50 +1,20 @@
 const axios = require("axios");
 
-async function spotify(input) {
+async function spotifyPlay(input) {
   if (!input) throw new Error("Input is required");
 
-  const { data: s } = await axios.get(
-    `https://spotdown.org/api/song-details?url=${encodeURIComponent(input)}`,
+  const { data } = await axios.get(
+    "https://api.nekolabs.web.id/dwn/spotify/play/v1",
     {
-      headers: {
-        origin: "https://spotdown.org",
-        referer: "https://spotdown.org/",
-        "user-agent":
-          "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
-      }
+      params: { q: input }
     }
   );
 
-  if (!s || !s.songs || s.songs.length === 0) {
-    throw new Error("Track tidak ditemukan");
+  if (!data?.success || !data?.result) {
+    throw new Error("Gagal mengambil data spotify");
   }
 
-  const song = s.songs[0];
-
-  const { data } = await axios.post(
-    "https://spotdown.org/api/download",
-    { url: song.url },
-    {
-      headers: {
-        origin: "https://spotdown.org",
-        referer: "https://spotdown.org/",
-        "user-agent":
-          "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36"
-      },
-      responseType: "arraybuffer"
-    }
-  );
-
-  return {
-    metadata: {
-      title: song.title,
-      artist: song.artist,
-      duration: song.duration,
-      cover: song.thumbnail,
-      url: song.url
-    },
-    audio: data
-  };
+  return data.result;
 }
 
 module.exports = function (app) {
@@ -66,19 +36,23 @@ module.exports = function (app) {
         });
       }
 
-      const input = url ? url : q;
-      const result = await spotify(input);
+      const input = url || q;
+      const result = await spotifyPlay(input);
+
+      const audioRes = await axios.get(result.downloadUrl, {
+        responseType: "arraybuffer"
+      });
 
       res.set({
         "Content-Type": "audio/mpeg",
         "Content-Disposition": `inline; filename="${result.metadata.title}.mp3"`
       });
 
-      res.send(Buffer.from(result.audio));
-    } catch (err) {
+      res.send(Buffer.from(audioRes.data));
+    } catch (e) {
       res.json({
         status: false,
-        error: err.message
+        error: e.message
       });
     }
   });
