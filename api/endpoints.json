@@ -249,11 +249,11 @@
   ],
 "tools": [
     {
-      "name": "To URL (Upload File)",
-      "desc": "Upload file and get temporary URL (auto delete 5 minutes)",
-      "status": "Active",
-      "path": "/tools/tourl?apikey="
-    },
+  "name": "To URL",
+  "desc": "Convert media URL to API domain URL",
+  "status": "Active",
+  "path": "/tools/tourl?apikey=&url="
+},
     {
   "name": "Video Transcript",
   "desc": "Transcribe video to text",
