@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const { fileTypeFromBuffer } = require('file-type')
+const { fileTypeFromBuffer } = require('file-type/core')
 
 if (!global.tourlStore) global.tourlStore = new Map()
 
@@ -45,7 +45,7 @@ module.exports = function (app) {
 
       res.json({
         status: true,
-        creator: 'Matstoree',
+        creator: 'ItsMeMatt',
         url: `${req.protocol}://${req.get('host')}/file/${id}`
       })
 
