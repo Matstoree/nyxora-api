@@ -247,7 +247,13 @@
       "path": "/search/xnxx?apikey=&q="
     }
   ],
-  "tools": [
+"tools": [
+    {
+      "name": "To URL (Upload File)",
+      "desc": "Upload file and get temporary URL (auto delete 5 minutes)",
+      "status": "Active",
+      "path": "/tools/tourl?apikey="
+    },
     {
   "name": "Video Transcript",
   "desc": "Transcribe video to text",
