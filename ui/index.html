@@ -7,798 +7,688 @@
   <title id="page"></title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-  /* ===== Loading Screen Styles ===== */
-  #loading-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    transition: opacity 0.5s ease;
-  }
-  
-  .loading-spinner-large {
-    border: 5px solid rgba(100, 149, 237, 0.1);
-    border-top: 5px solid rgba(26, 26, 26, 0.8);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    color: rgba(26, 26, 26, 0.8);
-    animation: spin 1s linear infinite;
-    margin-bottom: 10px;
-  }
-  
-  :root {
-    --primary: #3ba7ff;
-    --primary-dark: #417cb8;
-    --primary-light: #7fb3d5;
-    --secondary: #88c1e0;
-    --dark: #2c3e50;
-    --darker: rgba(26, 26, 26, 0.9);
-    --light: #ffffff;
-    --gray: #7f8c8d;
-    --light-gray: #ecf0f1;
-    --lighter-gray: #f5f7f8;
-    --success: #27ae60;
-    --warning: #f39c12;
-    --danger: #e74c3c;
-    --card-bg: #ffffff;
-    --card-hover: #f5f9fc;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  }
-  
-  .loading-text {
-    color: var(--darker);
-    font-size: 1.2rem;
-    margin-top: 5px;
-    text-align: center;
-    font-weight: 500;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary: #06b6d4;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --dark: #0f172a;
+  --light: #f8fafc;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
 
-  body {
-  background-color: #000;
-  background-image: 
-  linear-gradient(transparent 49%, rgba(255,255,255,0.05) 50%, transparent 51%),
-  linear-gradient(to right, transparent 49%, rgba(255,255,255,0.05) 50%, transparent 51%);
-  background-size: 100% 40px, 40px 100%;
-  animation: moveLines 5s linear infinite;
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: var(--dark);
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.3), transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(99, 102, 241, 0.2), transparent 50%);
+  animation: gradientShift 15s ease infinite;
+  z-index: -1;
+}
+
+@keyframes gradientShift {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Loading Screen */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+
+.loading-spinner-large {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.loading-text {
   color: white;
-  }
-
-  @keyframes moveLines {
-  0% {
-    background-position: 0 0, 0 0;
-  }
-  100% {
-    background-position: 0 40px, 40px 0;
-  }
-  }
-
-  .d-none {
-    display: none !important;
-  }
-  
-  #apiLinks a {
-  background: var(--darker);
-  border: 2px solid var(--darker);
-  padding: 0.4rem;
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Container */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 3rem 0 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero h2 {
+  font-size: 3.5rem;
+  font-weight: 800;
   color: white;
-  margin-right: 0.6rem;
-  transition: all 0.4s ease;
-  }
-  
-  #apiLinks a:nth-child(2) {
-  background: none;
-  border: 2px solid var(--darker);
-  color: var(--darker);
-  }
-  
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+  letter-spacing: -1px;
+}
 
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-x: auto;
-    background: #ffffff;
-    color: rgba(26, 26, 26, 0.8);
-    padding: 0.5rem;
-    border-radius: 2px;
-    max-height: 400px;
-    font-size: 0.85rem;    
-    font-weight: 600;
-    font-family: 'Poppins', serif;
-  }
+.hero p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+  line-height: 1.7;
+}
 
-  .btn-toggle {
-  padding: 10px 20px;
+#apiLinks {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#apiLinks a {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  color: var(--primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#apiLinks a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: white;
+}
+
+#apiLinks a:nth-child(2) {
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+#apiLinks a:nth-child(2):hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  background: transparent;
+  color: var(--gray-600);
   border: none;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.tab:hover:not(.active) {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+}
+
+/* API List */
+.api-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+/* API Cards */
+.api-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: cardEntrance 0.6s ease-out forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.api-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.api-card:hover::before {
+  opacity: 1;
+}
+
+.api-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.api-info h3 {
+  font-size: 1.15rem;
+  color: var(--gray-900);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.3px;
+}
+
+.api-info p {
+  font-size: 0.9rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  transition: all 0.3s ease;
+}
+
+.status::before {
+  content: '●';
+  margin-right: 0.5rem;
+  animation: pulse 2s ease infinite;
+}
+
+.status.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.status.danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.play-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.play-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.play-button i {
+  transition: transform 0.3s ease;
+}
+
+.play-button:hover i {
+  transform: translateX(3px);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 100;
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-dialog {
+  background: white;
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 550px;
+  width: 100%;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.modal.active .modal-dialog {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--gray-100);
+  margin-bottom: 1.5rem;
+}
+
+.modal-header h5 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+}
+
+.modal-header span {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.btn-close {
+  background: var(--gray-100);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--gray-600);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  background: var(--gray-200);
+  color: var(--gray-900);
+  transform: rotate(90deg);
+}
+
+.copy-section {
+  display: none;
+  background: var(--gray-50);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--gray-200);
+}
+
+.copy-section.active {
+  display: flex;
+}
+
+#copyEndpointText {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+  font-weight: 500;
+  overflow: auto;
+  font-family: 'Courier New', monospace;
+}
+
+.copy-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.copy-button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+.modal-body form input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.modal-body form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+#submitParamBtn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+#submitParamBtn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.loading-spinner {
+  margin: 2rem auto;
+  border: 3px solid var(--gray-200);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+#apiResponseContent {
+  background: var(--gray-50);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 1.5rem;
+}
+
+#apiResponseContent pre {
+  background: transparent;
+  color: var(--gray-800);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.image-response, .video-response {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.audio-response {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#colorToggleBtn {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
 }
 
-.btn-white {
-  background-color: white;
-  color: black;
+#colorToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
-.btn-black {
-  background-color: black;
+#credits {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.contact {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.contact a {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-  /* ===== Form Styles ===== */
-  .modal-body form label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 6px;
-    color: var(--dark);
-    font-size: 0.9rem;
-  }
+.contact a:hover {
+  background: white;
+  color: var(--primary);
+  transform: translateY(-5px) rotate(5deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
 
-  .modal-body form input {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 2px;
-    border: 1px solid #bdc3c7;
-    background: #ffffff;
-    color: var(--darker);
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    transition: var(--transition);
-  }
+.d-none {
+  display: none !important;
+}
 
-  .modal-body form input::placeholder {
-    color: #95a5a6;
-  }
-
-  .modal-body form input:focus {
-    outline: none;
-    box-shadow: 0 0 0 1.5px var(--darker);
-  }
-
-  #submitParamBtn {
-    background: var(--darker);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 0.95rem;
-    border-radius: 2px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    width: 100%;
-    margin-top: 0.5rem;
-    box-shadow: var(--shadow);
-  }
-
-  #submitParamBtn:hover {
-    background: var(--darker);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-
-  #submitParamBtn:active {
-    transform: translateY(0);
-  }
-
-  .loading-spinner {
-    margin: 2rem auto 0.5rem auto;
-    border: 3px solid rgba(91, 155, 213, 0.1);
-    border-top: 3px solid rgba(26, 26, 26, 0.8);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  .title-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1.25rem;
-  }
-  
-  .icon-title {
-    font-size: 2.1rem;
-    color: var(--primary);
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  /* ===== Modal Styles ===== */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .modal.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .modal-dialog {
-    width: 100%;
-    max-width: 500px;
-    background: #ffffff;
-    border-radius: 2px;
-    padding: 1.5rem;
-    color: var(--dark);
-    overflow: hidden;
-    transform: translateY(20px);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    opacity: 0;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid #dfe6e9;
-  }
-
-  .modal.active .modal-dialog {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #dfe6e9;
-    margin-bottom: 1rem;
-  }
-
-  .modal-header h5 {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--darker);
-  }
-
-  .modal-header span {
-    font-size: 0.90rem;
-    color: var(--gray);
-    display: block;
-    font-weight: 500;
-  }
-
-  .btn-close {
-    background: none;
-    border: none;
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h2 {
     font-size: 2.5rem;
-    line-height: 1;
-    cursor: pointer;
-    color: var(--darker);
-    transition: var(--transition);
-    padding: 0.25rem;
-    border-radius: 2px;
-    font-weight: 500;
-  }
-
-  .btn-close:hover {
-    color: var(--darker);
-    background: var(--lighter-gray);
-  }
-
-  /* ===== Modal Body Content ===== */
-  .modal-body {
-    padding: 0.5rem 0;
-  }
-
-  .copy-section {
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--lighter-gray);
-    border: 2px solid #dfe6e9;
-    padding: 10px 14px;
-    border-radius: 2px;
-    font-size: 0.85rem;
-    color: var(--darker);
-    margin-bottom: 1rem;
-    overflow: auto;
-    font-weight: 500;
-    transition: var(--transition);
   }
   
-  .copy-section::-webkit-scrollbar {
-    display: none;
-    height: 0;
-  }
-
-  .copy-section.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .copy-button {
-    background: var(--darker);
-    border: none;
-    color: white;
-    padding: 6px;
-    border-radius: 4px;
+  .hero p {
     font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 4px;
-    font-weight: 500;
-    min-width: 20px;
-  }
-
-  .copy-button:hover {
-    background: var(--darker);
-    transform: translateY(-1px);
-  }
-
-  .copy-button:active {
-    transform: translateY(0);
-  }
-
-  #apiResponseContent {
-    background-color: #ffffff;
-    padding: 1rem;
-    border-radius: 2px;
-    border: 2px solid #dfe6e9;
-    font-size: 0.9rem;
-    max-height: 400px;
-    overflow-y: auto;
-    margin-top: 15px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    transition: var(--transition);
   }
   
-  #apiResponseContent::-webkit-scrollbar {
-    display: none;
-  }
-
-  .image-response {
-    max-width: 100%;
-    max-height: 300px;
-    border-radius: 2px;
-    display: block;
-    margin: 0 auto;
-    box-shadow: var(--shadow-sm);
+  .api-list {
+    grid-template-columns: 1fr;
   }
   
-  .video-response {
-     max-width: 100%;
-     height: auto;
-     border-radius: 8px;
-   }
-   
-   .audio-response {
-     width: 100%;
-     margin-top: 10px;
-   }
-
-  /* ===== Page Sections ===== */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+  .tabs {
+    padding: 0.4rem;
   }
-
-  header h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    color: var(--darker);
+  
+  .tab {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
   }
+}
 
-  .hero {
-    text-align: left;
-    margin: 2.5rem 0 3rem;
-    max-width: 800px;
-  }
-
+@media (max-width: 480px) {
   .hero h2 {
     font-size: 2rem;
-    font-weight: 600;
-    color: var(--darker);
-    margin-bottom: -10px;
-    animation: gradient 8s ease infinite;
-  }
-
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  .hero p {
-    font-size: 0.9rem;
-    color: rgba(0, 0, 0, 0.7);
-    margin-bottom: 2rem;
-    font-weight: 500;
-    font-family: 'Poppins', serif;
-  }
-
-  /* ===== Stats ===== */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .stats div {
-    background: var(--card-bg);
-    padding: 1.5rem 1rem;
-    border-radius: 12px;
-    text-align: center;
-    transition: var(--transition);
-    border: 1px solid #dfe6e9;
-    box-shadow: var(--shadow);
-  }
-
-  .stats div:hover {
-    transform: translateY(-5px);
-    background: var(--card-hover);
-    box-shadow: var(--shadow-md);
-  }
-
-  .stats h3 {
-    font-size: 0.95rem;
-    color: var(--gray);
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-  }
-
-  .stats p {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--darker);
-  }
-
-  .content h2 {
-    font-size: 1.5rem;
-    color: var(--darker);
-    margin-bottom: 1rem;
-    font-weight: 500;
-  }
-
-  /* ===== Tabs ===== */
-  .tabs {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    margin-bottom: 1.2rem;
-    padding-bottom: 6px;
-    scrollbar-width: none;
-  }
-
-  .tabs::-webkit-scrollbar {
-    display: none;
-    height: 0;
-  }
-
-  .tab {
-    background: none;
-    color: rgba(0, 0, 0, 0.6);
-    border: none;
-    font-weight: 700;
-    border-bottom: 2px solid transparent;
-    padding: 0.25rem 0;
-    cursor: pointer;
-    font-size: 1rem;
-    white-space: nowrap;
-    position: relative;
-  }
-
-  .tab.active {
-    border-bottom: 2.5px solid var(--darker);
-    color: var(--darker);
-  }
-
-  .tab:after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-  }
-
-  .tab:hover:not(.active):after {
-    width: 100%;
-  }
-
-  /* ===== API Card Animations ===== */
-  .api-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 4rem;
-  }
-
-  /* ===== API Cards ===== */
-  .api-card {
-    background: var(--card-bg);
-    padding: 0.8rem;
-    border-radius: 2px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-    border: 1px solid rgba(0,0,0,0.1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 50px;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: cardEntrance 0.6s ease-out forwards;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .api-card:hover {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    
-  }
-
-  .api-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .api-card:hover::before {
-    opacity: 1;
-  }
-
-  .api-card:hover .play-button {
-    transform: translateX(3px);    
-  }
-
-  .api-info {
-    flex: 1;
-    padding-right: 1rem;
-  }
-
-  .play-button {
-    background: var(--darker);
-    border: none;
-    border-radius: 2px;
-    padding: 10px 10px;
-    color: rgba(255, 255, 255, 0.9);
-    cursor: pointer;
-    font-size: 0.88rem;
-    font-weight: 600;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: var(--shadow);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    align-self: center;
-    margin-top: 0;
-    white-space: nowrap;
-  }
-
-  @keyframes cardEntrance {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .api-info h3 {
-    font-size: 1rem;
-    color: var(--darker);
-    font-weight: 500;
-  }
-
-  .api-info p {
-    font-size: 0.80rem;
-    color: var(--gray);
-    font-weight: 500;
-    margin-bottom: 0.7rem;
-    line-height: 1.5;
-    
   }
   
-  .api-card:hover .status {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  .container {
+    padding: 1.5rem 1rem;
   }
-
-  .status {
-    background: rgba(39, 174, 96, 0.1);
-    padding: 0.35rem 1.6rem;
-    border-radius: 2px;
-    font-size: 0.75rem;
-    color: var(--success);
-    display: inline-block;
-    font-weight: 500;
-    margin-top: 0.5rem;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(39, 174, 96, 0.2);
+  
+  .modal-dialog {
+    padding: 1.5rem;
   }
-
-  .status.warning {
-    background: rgba(243, 156, 18, 0.1);
-    color: var(--warning);
-    border-color: rgba(243, 156, 18, 0.2);
-  }
-
-  .status.danger {
-    background: rgba(231, 76, 60, 0.1);
-    color: var(--danger);
-    border-color: rgba(231, 76, 60, 0.2);
-  }
-
-  .play-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .play-button:active {
-    transform: translateY(0);
-  }
-
-  .footer {
-    text-align: center;
-    padding: 2rem 0 1rem;
-    color: rgba(0, 0, 0, 0.6);
-    font-size: 0.9rem;
-    font-weight: 500;
-    border-top: 2px solid #dfe6e9;
-    margin-top: 3rem;
-  }
-
-  .contact {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .contact a {
-    color: rgba(0, 0, 0, 0.6);
-    text-decoration: none;
-    font-size: 1.25rem;
-    transition: var(--transition);
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--lighter-gray);
-  }
-
-  .contact a:hover {
-    color: white;
-    background: var(--darker);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
-  }
-
-  /* ===== Animations ===== */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .fade-in {
-    animation: fadeInUp 0.6s ease forwards;
-  }
-
-  /* ===== Responsive ===== */
-  @media (max-width: 768px) {
-    body {
-      padding: 1rem;
-    }
-    
-    .hero h2 {
-      font-size: 1.8rem;
-    }
-    
-    .hero p {
-      font-size: 0.9rem;
-    }
-    
-    .api-list {
-      grid-template-columns: 1fr;
-    }
-    
-    .stats {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .hero h2 {
-      font-size: 1.7rem;
-    }
-    
-    .stats {
-      grid-template-columns: 1fr;
-    }
-    
-    .modal-dialog {
-      padding: 1.25rem;
-    }
-  }
+}
   </style>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loading-spinner-large"></div>
+    <div class="loading-text">Loading ...</div>
+  </div>
 
   <div class="container">
-    <section class="hero fade-in">
-      <div class="title-container">
-        <h2 id="apiTitle"></h2>
-      </div>
+    <section class="hero">
+      <h2 id="apiTitle"></h2>
       <p>Simple API with easy and minimalistic integration for WhatsApp Bot Developers.</p>
-          <section id="apiLinks">
-    <a id="information" href="#" title="Information">Information API</a>
-    <a id="contactdev" href="#" title="Contact Dev">Contact Dev</a>
-    </section>
+      <section id="apiLinks">
+        <a id="information" href="#" title="Information">
+          <i class="fas fa-info-circle"></i> Information API
+        </a>
+        <a id="contactdev" href="#" title="Contact Dev">
+          <i class="fas fa-envelope"></i> Contact Dev
+        </a>
+      </section>
     </section>
 
     <section class="content">
@@ -807,7 +697,7 @@
     </section>
   </div>
 
-  <!-- Modal for API Response -->
+  <!-- Modal -->
   <div class="modal" id="apiResponseModal">
     <div class="modal-dialog">
       <div class="modal-header">
@@ -821,10 +711,10 @@
         <div class="copy-section">
           <span id="copyEndpointText"></span>
           <button class="copy-button">
-            <i class="far fa-copy"></i>
+            <i class="far fa-copy"></i> Copy
           </button>
         </div>
-        <form id="paramForm" style="margin-bottom: 0.5rem"></form>
+        <form id="paramForm"></form>
         <button id="submitParamBtn" type="button">Submit Request</button>
         <div id="apiResponseLoading" class="loading-spinner" style="display: none;"></div>
         <div id="apiResponseContent" class="d-none"></div>
@@ -833,7 +723,9 @@
   </div>
 
   <footer class="footer">
-    <button id="colorToggleBtn" class="btn-toggle btn-white">Tombol Warna</button>
+    <button id="colorToggleBtn">
+      <i class="fas fa-palette"></i> Toggle Color
+    </button>
     <div id="credits"></div>
     <div class="contact">
       <a id="githubLink" target="_blank" title="GitHub">
@@ -849,14 +741,12 @@
   </footer>
 
   <script>
-  
-  (async () => {
-  const settings = await fetch("/settings.json").then(res => res.json());
-  
-  document.getElementById("icon").href = settings.favicon
-  const head = document.head;
-  
-  const ogTags = [
+    (async () => {
+      const settings = await fetch("/settings.json").then(res => res.json());
+      document.getElementById("icon").href = settings.favicon;
+      const head = document.head;
+      
+      const ogTags = [
         { property: 'og:title', content: settings.apititle },
         { property: 'og:description', content: "Simple API with easy and minimalistic integration for WhatsApp Bot Developers." },
         { property: 'og:image', content: settings.favicon },
@@ -864,21 +754,18 @@
         { property: 'og:type', content: 'website' }
       ];
       
-  ogTags.forEach(({ property, content }) => {
+      ogTags.forEach(({ property, content }) => {
         const meta = document.createElement('meta');
         meta.setAttribute('property', property);
         meta.setAttribute('content', content);
         head.appendChild(meta);
       });
-  
-  })()
-  
+    })();
+
     document.addEventListener('DOMContentLoaded', function() {
-      // Hide the main content initially
       document.querySelector('.container').style.display = 'none';
       document.querySelector('footer').style.display = 'none';
       
-      // Load settings and then hide loading screen
       loadSettings().then(() => {
         setTimeout(() => {
           document.getElementById('loading-screen').style.opacity = '0';
@@ -904,9 +791,9 @@
         if (el) el[property] = value;
       };
 
-      setContent("page", "textContent", "Docs - " + settings.apititle || "Docs - jarrOfficialL API");
-      setContent("credits", "textContent", `© ${new Date().getFullYear()} Powered by ${settings.creator || "jarrOfficialL"}`);
-      setContent("apiTitle", "textContent", settings.apititle || "jarrOfficialL API");
+      setContent("page", "textContent", "Docs - " + (settings.apititle || "API Documentation"));
+      setContent("credits", "textContent", `© ${new Date().getFullYear()} Powered by ${settings.creator || "Developer"}`);
+      setContent("apiTitle", "textContent", settings.apititle || "API Documentation");
 
       document.getElementById("githubLink").href = settings.github || "#";
       document.getElementById("whatsappLink").href = settings.whatsapp || "#";
@@ -914,7 +801,6 @@
       document.getElementById("information").href = settings.saluran || "#";
       document.getElementById("contactdev").href = settings.whatsapp || "#";
 
-      // Create tabs
       Object.keys(apis).forEach((key, index) => {
         const button = document.createElement("button");
         button.className = `tab ${index === 0 ? "active" : ""}`;
@@ -923,24 +809,20 @@
         tabsContainer.appendChild(button);
       });
 
-      // Render API cards
       function renderAPIs(category) {
         apiList.innerHTML = "";
         apis[category].sort((a, b) => a.name.localeCompare(b.name)).forEach((api, i) => {
           const card = document.createElement("div");
           card.className = "api-card";
           
-          
-          // Determine status class
           let statusClass = "";
           if (api.status.toLowerCase().includes("maintenance")) statusClass = "danger";
           else if (api.status.toLowerCase().includes("beta")) statusClass = "warning";
-          else statusClass = "";
           
           card.innerHTML = `
             <div class="api-info">
               <h3>${api.name}</h3>
-              ${api.desc ? `<p>${api.desc}</p>` : "" }
+              ${api.desc ? `<p>${api.desc}</p>` : ""}
               <span class="status ${statusClass}">${api.status}</span>
             </div>
             <button class="play-button" data-endpoint="${api.path}" data-api="${api.name}" data-desc="${api.desc}">
@@ -949,17 +831,14 @@
           `;
           apiList.appendChild(card);
           
-          // Trigger reflow to restart animation
           setTimeout(() => {
             card.style.animation = `cardEntrance 0.6s ease-out ${i * 0.1}s forwards`;
           }, 10);
         });
       }
 
-      // Initial render
       renderAPIs(Object.keys(apis)[0]);
 
-      // Tab click event
       tabsContainer.addEventListener("click", (e) => {
         if (e.target.classList.contains("tab")) {
           document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
@@ -968,9 +847,7 @@
         }
       });
 
-      // Event listeners
       document.addEventListener("click", (e) => {
-        // Play button click
         if (e.target.closest(".play-button")) {
           const btn = e.target.closest(".play-button");
           const endpoint = btn.getAttribute("data-endpoint");
@@ -981,7 +858,6 @@
           const submitBtn = document.getElementById("submitParamBtn");
           const modal = document.getElementById("apiResponseModal");
 
-          // Reset modal state
           document.getElementById("apiResponseContent").textContent = "";
           document.getElementById("apiResponseContent").classList.add("d-none");
           document.getElementById("apiResponseLoading").style.display = "none";
@@ -994,7 +870,6 @@
           document.querySelector(".modal-dialog h5").innerText = api;
           document.querySelector(".modal-dialog span").innerText = desc;
 
-          // Check if endpoint has parameters
           if (endpoint.includes("?")) {
             const queryParams = endpoint.split("?")[1].split("&");
 
@@ -1008,7 +883,6 @@
 
             submitBtn.style.display = "block";
           } else {
-            // If no parameters, fetch immediately
             fetchAPI(endpoint);
           }
           
@@ -1016,27 +890,23 @@
           document.querySelector(".copy-section").classList.add("active");
           document.getElementById("copyEndpointText").innerText = window.location.origin + endpoint;
         }
-        
 
-        // Copy button click
         if (e.target.closest(".copy-button")) {
           const textToCopy = document.getElementById("copyEndpointText").innerText;
           navigator.clipboard.writeText(textToCopy).then(() => {
             const copyBtn = e.target.closest(".copy-button");
-            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
             setTimeout(() => {
-              copyBtn.innerHTML = '<i class="far fa-copy"></i>';
+              copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
             }, 2000);
           });
         }
         
-        // Close modal
         if (e.target.id === "btn-close" || e.target === document.getElementById("apiResponseModal")) {
           document.getElementById("apiResponseModal").classList.remove("active");
         }
       });
 
-      // Submit parameters
       document.getElementById("submitParamBtn").addEventListener("click", () => {
         const form = document.getElementById("paramForm");
         const submitBtn = document.getElementById("submitParamBtn");
@@ -1060,76 +930,85 @@
         
         fetchAPI(endpoint);
       });
-    }    
 
-function fetchAPI(endpoint) {
-  const fullURL = window.location.origin + endpoint;
-  const responseEl = document.getElementById("apiResponseContent");
-  const loadingEl = document.getElementById("apiResponseLoading");
-  const urlsSection = document.querySelector(".copy-section");
-  const modal = document.getElementById("apiResponseModal");
+      function fetchAPI(endpoint) {
+        const fullURL = window.location.origin + endpoint;
+        const responseEl = document.getElementById("apiResponseContent");
+        const loadingEl = document.getElementById("apiResponseLoading");
+        const urlsSection = document.querySelector(".copy-section");
+
+        paramForm.style.display = "none";
+        document.getElementById("submitParamBtn").style.display = "none";
+        loadingEl.style.display = "block";
+        responseEl.classList.add("d-none");
+        responseEl.innerHTML = "";
+        urlsSection.classList.add("active");
+        document.getElementById("copyEndpointText").innerText = fullURL;
+
+        fetch(fullURL)
+          .then(async (res) => {
+            loadingEl.style.display = "none";
+            const contentType = res.headers.get("content-type");
+
+            if (contentType && contentType.includes("application/json")) {
+              const data = await res.json();
+              responseEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } 
+            else if (contentType && contentType.startsWith("image/")) {
+              const blob = await res.blob();
+              const imgUrl = URL.createObjectURL(blob);
+              responseEl.innerHTML = `<img src="${imgUrl}" class="image-response" alt="API Response" />`;
+            } 
+            else if (contentType && contentType.startsWith("video/")) {
+              const blob = await res.blob();
+              const videoUrl = URL.createObjectURL(blob);
+              responseEl.innerHTML = `
+                <video controls class="video-response" autoplay>
+                  <source src="${videoUrl}" type="${contentType}">
+                  Your browser does not support the video tag.
+                </video>
+              `;
+            }
+            else if (contentType && contentType.startsWith("audio/")) {
+              const blob = await res.blob();
+              const audioUrl = URL.createObjectURL(blob);
+              responseEl.innerHTML = `
+                <audio controls class="audio-response" autoplay>
+                  <source src="${audioUrl}" type="${contentType}">
+                  Your browser does not support the audio tag.
+                </audio>
+              `;
+            }
+            else {
+              const text = await res.text();
+              responseEl.innerHTML = `<pre>${text.substring(0, 1000)}</pre>`;
+            }
+
+            responseEl.classList.remove("d-none");
+          })
+          .catch((err) => {
+            loadingEl.style.display = "none";
+            responseEl.classList.remove("d-none");
+            responseEl.innerHTML = `<pre>Error: ${err.message}</pre>`;
+          });
+      }
+    }
+
     const toggleBtn = document.getElementById('colorToggleBtn');
-  toggleBtn.addEventListener('click', () => {
-    toggleBtn.classList.toggle('btn-white');
-    toggleBtn.classList.toggle('btn-black');
-  });
-
-  // Show loading state
-  paramForm.style.display = "none";
-  document.getElementById("submitParamBtn").style.display = "none";
-  loadingEl.style.display = "block";
-  responseEl.classList.add("d-none");
-  responseEl.innerHTML = "";
-  urlsSection.classList.add("active");
-  document.getElementById("copyEndpointText").innerText = fullURL;
-
-  fetch(fullURL)
-    .then(async (res) => {
-      loadingEl.style.display = "none";
-      const contentType = res.headers.get("content-type");
-
-      if (contentType && contentType.includes("application/json")) {
-        const data = await res.json();
-        responseEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-      } 
-      else if (contentType && contentType.startsWith("image/")) {
-        const blob = await res.blob();
-        const imgUrl = URL.createObjectURL(blob);
-        responseEl.innerHTML = `<img src="${imgUrl}" class="image-response" alt="API Response" />`;
-      } 
-      else if (contentType && contentType.startsWith("video/")) {
-        const blob = await res.blob();
-        const videoUrl = URL.createObjectURL(blob);
-        responseEl.innerHTML = `
-          <video controls class="video-response" autoplay>
-            <source src="${videoUrl}" type="${contentType}">
-            Your browser does not support the video tag.
-          </video>
-        `;
-      }
-      else if (contentType && contentType.startsWith("audio/")) {
-        const blob = await res.blob();
-        const audioUrl = URL.createObjectURL(blob);
-        responseEl.innerHTML = `
-          <audio controls class="audio-response" autoplay>
-            <source src="${audioUrl}" type="${contentType}">
-            Your browser does not support the audio tag.
-          </audio>
-        `;
-      }
-      else {
-        const text = await res.text();
-        responseEl.innerHTML = `<pre>${text.substring(0, 1000)}</pre>`;
-      }
-
-      responseEl.classList.remove("d-none");
-    })
-    .catch((err) => {
-      loadingEl.style.display = "none";
-      responseEl.classList.remove("d-none");
-      responseEl.innerHTML = `<pre>Error: ${err.message}</pre>`;
+    const gradients = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      'linear-gradient(135deg, #30cfd0 0%, #330867 100%)'
+    ];
+    let currentGradient = 0;
+    
+    toggleBtn.addEventListener('click', () => {
+      currentGradient = (currentGradient + 1) % gradients.length;
+      document.body.style.background = gradients[currentGradient];
     });
-}
   </script>
 </body>
 </html>
