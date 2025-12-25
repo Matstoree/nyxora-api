@@ -15,6 +15,12 @@
   ],
   "downloader": [
     {
+  "name": "Play",
+  "desc": "Search & play YouTube audio",
+  "status": "Active",
+  "path": "/download/play?apikey=&q="
+    },
+    {
       "name": "Tiktok",
       "desc": "Downloader tiktok",
       "status": "Active",
