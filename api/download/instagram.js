@@ -1,53 +1,53 @@
-const axios = require("axios");
+const axios = require('axios')
 
 module.exports = function (app) {
-  app.get("/download/instagram", async (req, res) => {
+  app.get('/download/instagram', async (req, res) => {
     try {
-      const { apikey, url } = req.query;
+      const { apikey, url } = req.query
 
       if (!global.apikey.includes(apikey)) {
         return res.json({
           status: false,
-          error: "Apikey invalid"
-        });
+          error: 'Apikey invalid'
+        })
       }
 
       if (!url) {
         return res.json({
           status: false,
-          error: "Url Instagram tidak boleh kosong"
-        });
+          error: 'Url tidak boleh kosong'
+        })
       }
 
       const { data } = await axios.get(
-        "https://api.deline.web.id/downloader/ig",
+        'https://api.ryzumi.vip/api/downloader/igdl',
         {
-          params: { url }
+          params: { url },
+          headers: { accept: 'application/json' }
         }
-      );
+      )
 
-      if (!data || !data.status) {
+      if (!data?.status || !data?.data?.length) {
         return res.json({
           status: false,
-          error: "Gagal mengambil media Instagram"
-        });
+          error: 'Media tidak ditemukan'
+        })
       }
-
-      const media = data.result.media;
 
       res.json({
         status: true,
-        creator: "Matstoree",
-        result: {
-          images: media.images || [],
-          videos: media.videos || []
-        }
-      });
-    } catch (err) {
+        creator: 'ItsMeMatt',
+        result: data.data.map(v => ({
+          type: v.type,
+          thumbnail: v.thumbnail,
+          url: v.url
+        }))
+      })
+    } catch (e) {
       res.json({
         status: false,
-        error: err.message
-      });
+        error: e.message
+      })
     }
-  });
-};
+  })
+}
