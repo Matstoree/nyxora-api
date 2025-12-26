@@ -2,16 +2,17 @@ const axios = require('axios')
 const vm = require('node:vm')
 const cheerio = require('cheerio')
 
-async function getTurnstileToken() {
+async function cftoken() {
   const { data } = await axios.get(
-    'https://api.neoxr.eu/api/bypass-turnstile?url=https%3A%2F%2Fsnapinsta.to&sitekey=0x4AAAAAAA4IDAOil0Jqxtin&apikey=NyxoraApikey'
+    'https://api.nekolabs.web.id/tls/bypass/cf-turnstile',
+    {
+      params: {
+        url: 'https://snapinsta.to',
+        siteKey: '0x4AAAAAAA4IDAOil0Jqxtin'
+      }
+    }
   )
-
-  if (!data?.status || !data?.data?.token) {
-    throw new Error('Gagal bypass Turnstile')
-  }
-
-  return data.data.token
+  return data.result
 }
 
 function runVM(js) {
@@ -44,7 +45,7 @@ function runVM(js) {
 }
 
 async function snapinsta(url) {
-  const token = await getTurnstileToken()
+  const token = await cftoken()
 
   const body = new URLSearchParams({
     q: url,
