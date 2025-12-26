@@ -248,6 +248,12 @@
     }
   ],
 "tools": [
+  {
+  "name": "Text To Speech",
+  "desc": "Convert text to speech (Google TTS)",
+  "status": "Active",
+  "path": "/tools/tts?apikey=&text=&lang="
+  },
      {
   "name": "Video Transcript",
   "desc": "Transcribe video to text",
