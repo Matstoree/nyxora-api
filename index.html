@@ -425,7 +425,7 @@
   </header>
 
   <!-- Stats Grid -->
-  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-16 fade-in-up delay-100">
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 fade-in-up delay-100">
     <div id="battery" class="stat-box p-6 rounded-2xl text-center">
       <i class="fas fa-battery-full text-4xl mb-3" style="color: #6366f1;"></i>
       <div class="text-gray-300 text-sm font-medium">Battery: Loading...</div>
@@ -437,6 +437,13 @@
     <div id="ip-address" class="stat-box p-6 rounded-2xl text-center">
       <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
       <div class="text-gray-300 text-sm font-medium">IP: Loading...</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16 fade-in-up delay-100">
+    <div id="location" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-map-marker-alt text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Location: Loading...</div>
     </div>
     <div id="total-endpoint" class="stat-box p-6 rounded-2xl text-center">
       <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
@@ -598,19 +605,32 @@
   setInterval(updateTime, 1000);
   updateTime();
 
-  // Fetch User IP Address
-  fetch('https://api.ipify.org?format=json')
+  // Fetch User IP and Location
+  fetch('https://ipapi.co/json/')
     .then(res => res.json())
     .then(data => {
+      // Display IP Address
       document.getElementById('ip-address').innerHTML = `
         <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
         <div class="text-gray-300 text-sm font-medium">IP: ${data.ip}</div>
+      `;
+      
+      // Display Location (City, Country)
+      const city = data.city || 'Unknown';
+      const country = data.country_name || 'Unknown';
+      document.getElementById('location').innerHTML = `
+        <i class="fas fa-map-marker-alt text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Location: ${city}, ${country}</div>
       `;
     })
     .catch(err => {
       document.getElementById('ip-address').innerHTML = `
         <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
         <div class="text-gray-300 text-sm font-medium">IP: Error</div>
+      `;
+      document.getElementById('location').innerHTML = `
+        <i class="fas fa-map-marker-alt text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Location: Error</div>
       `;
       console.error(err);
     });
