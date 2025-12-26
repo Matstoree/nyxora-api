@@ -4,17 +4,10 @@ const cheerio = require('cheerio')
 
 async function getTurnstileToken() {
   const { data } = await axios.get(
-    'https://api.neoxr.eu/api/bypass-turnstile',
-    {
-      params: {
-        url: 'https://snapinsta.to',
-        sitekey: '0x4AAAAAAA4IDAOil0Jqxtin',
-        apikey: 'NyxoraApikey'
-      }
-    }
+    'https://api.neoxr.eu/api/bypass-turnstile?url=https%3A%2F%2Fsnapinsta.to&sitekey=0x4AAAAAAA4IDAOil0Jqxtin&apikey=NyxoraApikey'
   )
 
-  if (!data.status || !data.data?.token) {
+  if (!data?.status || !data?.data?.token) {
     throw new Error('Gagal bypass Turnstile')
   }
 
