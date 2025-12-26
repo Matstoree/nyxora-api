@@ -162,6 +162,12 @@
     }
   ],
   "search": [
+    {
+  "name": "DramaBox Search",
+  "desc": "Search drama series from DramaBox",
+  "status": "Active",
+  "path": "/search/dramabox?apikey=&q="
+    },
 {
   "name": "ML Region",
   "desc": "Cek region Mobile Legends",
