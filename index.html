@@ -5,29 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>API'S MatsToree</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      min-height: 100vh;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      min-height: 100vh;
       position: relative;
       overflow-x: hidden;
     }
 
+    /* Animated Background */
     body::before {
       content: '';
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
+      width: 100%;
+      height: 100%;
       background: 
-        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 119, 255, 0.3) 0%, transparent 50%);
+        radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grid Background */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
       pointer-events: none;
       z-index: 0;
     }
@@ -38,7 +60,7 @@
       padding: 1rem;
     }
 
-    /* Navbar Styles */
+    /* Navbar */
     .navbar {
       position: fixed;
       top: 0;
@@ -48,33 +70,33 @@
     }
 
     .hamburger {
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 10px;
-      border: 2px solid rgba(255, 255, 255, 0.5);
+      width: 48px;
+      height: 48px;
+      background: rgba(20, 20, 20, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       gap: 5px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hamburger:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+      background: rgba(30, 30, 30, 0.9);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: scale(1.05);
     }
 
     .hamburger span {
-      width: 22px;
-      height: 2.5px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      width: 20px;
+      height: 2px;
+      background: #ffffff;
       border-radius: 2px;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hamburger.active span:nth-child(1) {
@@ -93,13 +115,13 @@
     .side-menu {
       position: fixed;
       top: 0;
-      right: -350px;
-      width: 320px;
+      right: -380px;
+      width: 360px;
       height: 100vh;
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(20px);
-      box-shadow: -5px 0 30px rgba(0, 0, 0, 0.2);
-      transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      background: rgba(15, 15, 15, 0.98);
+      backdrop-filter: blur(40px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 999;
       padding: 2rem;
       overflow-y: auto;
@@ -111,35 +133,37 @@
 
     .menu-header {
       margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .menu-item {
-      padding: 1rem;
+      padding: 1.25rem;
       margin-bottom: 0.75rem;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      background: rgba(255, 255, 255, 0.03);
       border-radius: 12px;
-      border-left: 4px solid #667eea;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       gap: 1rem;
     }
 
     .menu-item:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
       transform: translateX(-5px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-      border-left-width: 6px;
     }
 
     .menu-item i {
       font-size: 1.5rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #6366f1;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-item:hover i {
+      transform: scale(1.1);
     }
 
     .overlay {
@@ -148,7 +172,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
@@ -160,10 +185,11 @@
       visibility: visible;
     }
 
+    /* Animations */
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
       }
       to {
         opacity: 1;
@@ -173,11 +199,11 @@
 
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-15px); }
     }
 
     .fade-in-up {
-      animation: fadeInUp 0.6s ease-out forwards;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
     .delay-100 { animation-delay: 0.1s; opacity: 0; }
@@ -185,71 +211,143 @@
     .delay-300 { animation-delay: 0.3s; opacity: 0; }
     .delay-400 { animation-delay: 0.4s; opacity: 0; }
 
+    /* Stat Box */
     .stat-box {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .stat-box:hover::before {
+      left: 100%;
     }
 
     .stat-box:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(99, 102, 241, 0.3);
       transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-      background: rgba(255, 255, 255, 1);
     }
 
+    /* Feature Card */
     .feature-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
     }
 
     .feature-card:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 15px 35px rgba(118, 75, 162, 0.3);
-      background: rgba(255, 255, 255, 1);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-8px);
     }
 
     .header-icon {
-      animation: float 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.6));
     }
 
     .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .icon-gradient {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .icon-box {
+      width: 56px;
+      height: 56px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .icon-box {
+      background: rgba(99, 102, 241, 0.2);
+      transform: scale(1.1) rotate(5deg);
     }
 
     .step-number {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
     }
 
     .endpoint-item {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      border-left: 3px solid #667eea;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .endpoint-item:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateX(5px);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.5);
     }
   </style>
 </head>
 <body>
 
-<!-- Navbar dengan Hamburger Menu -->
+<!-- Navbar -->
 <nav class="navbar">
   <div class="hamburger" id="hamburger">
     <span></span>
@@ -265,37 +363,38 @@
 <div class="side-menu" id="sideMenu">
   <div class="menu-header">
     <h2 class="gradient-text text-2xl font-bold">NyxoraApi Menu</h2>
+    <p class="text-gray-400 text-sm mt-2">Navigate through options</p>
   </div>
   
   <div class="menu-item" onclick="window.location.href='/docs'">
     <i class="fas fa-book"></i>
     <div>
-      <h3 class="font-semibold text-gray-800">Dokumentasi API</h3>
-      <p class="text-xs text-gray-600">Panduan lengkap penggunaan</p>
+      <h3 class="font-semibold text-white">Dokumentasi API</h3>
+      <p class="text-xs text-gray-400">Panduan lengkap penggunaan</p>
     </div>
   </div>
 
   <div class="menu-item" onclick="window.location.href='/panel/'">
     <i class="fas fa-shopping-bag"></i>
     <div>
-      <h3 class="font-semibold text-gray-800">Beli Panel</h3>
-      <p class="text-xs text-gray-600">Panel Pterodactly Bot WhatsApp</p>
+      <h3 class="font-semibold text-white">Beli Panel</h3>
+      <p class="text-xs text-gray-400">Panel Pterodactly Bot WhatsApp</p>
     </div>
   </div>
 
   <div class="menu-item" onclick="window.location.href='https://wa.me/6282191987064'">
     <i class="fab fa-whatsapp"></i>
     <div>
-      <h3 class="font-semibold text-gray-800">Contact Owner</h3>
-      <p class="text-xs text-gray-600">Hubungi via WhatsApp</p>
+      <h3 class="font-semibold text-white">Contact Owner</h3>
+      <p class="text-xs text-gray-400">Hubungi via WhatsApp</p>
     </div>
   </div>
 
   <div class="menu-item" onclick="window.open('https://chat.whatsapp.com/F73kgNjE6DdBe5oBnYlQFi', '_blank')">
     <i class="fas fa-rss"></i>
     <div>
-      <h3 class="font-semibold text-gray-800">Group</h3>
-      <p class="text-xs text-gray-600">Join WhatsApp Group Nyxora</p>
+      <h3 class="font-semibold text-white">Group</h3>
+      <p class="text-xs text-gray-400">Join WhatsApp Group Nyxora</p>
     </div>
   </div>
 </div>
@@ -303,125 +402,132 @@
 <div class="max-w-6xl mx-auto container-main" style="padding-top: 4rem;">
 
   <!-- Header -->
-  <header class="text-center mb-12 fade-in-up">
-    <div class="mb-4">
-      <i class="fas fa-code text-5xl text-white header-icon"></i>
+  <header class="text-center mb-16 fade-in-up">
+    <div class="mb-6">
+      <i class="fas fa-code text-6xl text-white header-icon" style="color: #6366f1;"></i>
     </div>
-    <h1 class="text-5xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">
-      NyxoraApi
+    <h1 class="text-5xl md:text-7xl font-bold mb-4 text-white" style="letter-spacing: -0.02em;">
+      Mats.toreeOfc
     </h1>
-    <p class="text-white text-lg md:text-xl max-w-2xl mx-auto drop-shadow">
-      Simple API with easy and minimalistic integration for WhatsApp Bot Developers.
+    <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+      API sederhana dengan integrasi yang mudah dan minimalis untuk pengembang Bot WhatsApp.
+    </p>
+    <p class="mt-4 text-gray-500 text-sm font-medium">
+      By Rahmatullah
     </p>
   </header>
 
   <!-- Stats Grid -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 fade-in-up delay-100">
-    <div id="battery" class="stat-box p-6 rounded-xl text-center shadow-lg">
-      <i class="fas fa-battery-full text-3xl mb-2 icon-gradient"></i>
-      <div class="text-gray-700 text-sm font-medium">Battery: Loading...</div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 fade-in-up delay-100">
+    <div id="battery" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-battery-full text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Battery: Loading...</div>
     </div>
-    <div id="clock" class="stat-box p-6 rounded-xl text-center shadow-lg">
-      <i class="far fa-clock text-3xl mb-2 icon-gradient"></i>
-      <div class="text-gray-700 text-sm font-medium">Time: Loading...</div>
+    <div id="clock" class="stat-box p-6 rounded-2xl text-center">
+      <i class="far fa-clock text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Time: Loading...</div>
     </div>
-    <div id="total-endpoint" class="stat-box p-6 rounded-xl text-center shadow-lg">
-      <i class="fas fa-server text-3xl mb-2 icon-gradient"></i>
-      <div class="text-gray-700 text-sm font-medium">Endpoint: Loading...</div>
+    <div id="total-endpoint" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Endpoint: Loading...</div>
     </div>
-    <div id="total-request" class="stat-box p-6 rounded-xl text-center shadow-lg">
-      <i class="fas fa-chart-line text-3xl mb-2 icon-gradient"></i>
-      <div class="text-gray-700 text-sm font-medium">Request: Loading...</div>
+    <div id="total-request" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-chart-line text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Request: Loading...</div>
     </div>
   </div>
 
   <!-- Features Section -->
   <section class="max-w-5xl mx-auto fade-in-up delay-200">
-    <h2 class="text-3xl font-bold text-center mb-8 text-white drop-shadow-lg">Fitur Unggulan</h2>
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold gradient-text mb-3">Fitur Unggulan</h2>
+      <p class="text-gray-400 text-sm">Solusi API terbaik untuk bot Anda</p>
+    </div>
     
-    <div class="grid md:grid-cols-3 gap-6 mb-12">
+    <div class="grid md:grid-cols-3 gap-6 mb-16">
       <!-- Feature 1 -->
-      <div class="feature-card p-6 rounded-xl shadow-lg">
-        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-          <i class="fas fa-lightning-bolt text-2xl icon-gradient"></i>
+      <div class="feature-card p-8 rounded-2xl">
+        <div class="icon-box mb-5">
+          <i class="fas fa-lightning-bolt text-2xl" style="color: #6366f1;"></i>
         </div>
-        <h3 class="text-xl font-semibold mb-2 gradient-text">Fast Response</h3>
-        <p class="text-gray-700 text-sm">API dengan response time yang cepat dan stabil untuk kebutuhan bot Anda.</p>
+        <h3 class="text-xl font-semibold mb-3 text-white">Fast Response</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">API dengan response time yang cepat dan stabil untuk kebutuhan bot Anda.</p>
       </div>
 
       <!-- Feature 2 -->
-      <div class="feature-card p-6 rounded-xl shadow-lg">
-        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-          <i class="fas fa-shield-alt text-2xl icon-gradient"></i>
+      <div class="feature-card p-8 rounded-2xl">
+        <div class="icon-box mb-5">
+          <i class="fas fa-shield-alt text-2xl" style="color: #6366f1;"></i>
         </div>
-        <h3 class="text-xl font-semibold mb-2 gradient-text">Secure & Reliable</h3>
-        <p class="text-gray-700 text-sm">Keamanan data terjamin dengan enkripsi dan sistem yang handal 24/7.</p>
+        <h3 class="text-xl font-semibold mb-3 text-white">Secure & Reliable</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Keamanan data terjamin dengan enkripsi dan sistem yang handal 24/7.</p>
       </div>
 
       <!-- Feature 3 -->
-      <div class="feature-card p-6 rounded-xl shadow-lg">
-        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-          <i class="fas fa-puzzle-piece text-2xl icon-gradient"></i>
+      <div class="feature-card p-8 rounded-2xl">
+        <div class="icon-box mb-5">
+          <i class="fas fa-puzzle-piece text-2xl" style="color: #6366f1;"></i>
         </div>
-        <h3 class="text-xl font-semibold mb-2 gradient-text">Easy Integration</h3>
-        <p class="text-gray-700 text-sm">Dokumentasi lengkap dan mudah dipahami untuk integrasi yang cepat.</p>
+        <h3 class="text-xl font-semibold mb-3 text-white">Easy Integration</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Dokumentasi lengkap dan mudah dipahami untuk integrasi yang cepat.</p>
       </div>
     </div>
 
     <!-- Getting Started -->
-    <div class="glass-card rounded-xl shadow-lg p-8 mb-6">
-      <h3 class="text-2xl font-bold mb-4 gradient-text flex items-center">
+    <div class="glass-card rounded-2xl p-8 mb-6">
+      <h3 class="text-2xl font-bold mb-2 gradient-text flex items-center">
         <i class="fas fa-rocket mr-3"></i>
         Getting Started
       </h3>
-      <p class="text-gray-700 mb-4">Mulai gunakan API dalam 3 langkah mudah:</p>
-      <div class="space-y-3">
+      <p class="text-gray-400 mb-6 text-sm">Mulai gunakan API dalam 3 langkah mudah</p>
+      <div class="space-y-4">
         <div class="flex items-start">
-          <div class="w-8 h-8 step-number text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0 font-semibold">1</div>
+          <div class="w-10 h-10 step-number text-white rounded-xl flex items-center justify-center mr-4 flex-shrink-0 font-bold text-sm">1</div>
           <div>
-            <h4 class="font-semibold text-gray-800">Dapatkan API Key</h4>
-            <p class="text-sm text-gray-600">Hubungi owner untuk mendapatkan apikey.</p>
+            <h4 class="font-semibold text-white mb-1">Dapatkan API Key</h4>
+            <p class="text-sm text-gray-400">Hubungi owner untuk mendapatkan apikey.</p>
           </div>
         </div>
         <div class="flex items-start">
-          <div class="w-8 h-8 step-number text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0 font-semibold">2</div>
+          <div class="w-10 h-10 step-number text-white rounded-xl flex items-center justify-center mr-4 flex-shrink-0 font-bold text-sm">2</div>
           <div>
-            <h4 class="font-semibold text-gray-800">Baca Dokumentasi</h4>
-            <p class="text-sm text-gray-600">Pelajari endpoint yang tersedia dan cara penggunaannya.</p>
+            <h4 class="font-semibold text-white mb-1">Baca Dokumentasi</h4>
+            <p class="text-sm text-gray-400">Pelajari endpoint yang tersedia dan cara penggunaannya.</p>
           </div>
         </div>
         <div class="flex items-start">
-          <div class="w-8 h-8 step-number text-white rounded-full flex items-center justify-center mr-3 flex-shrink-0 font-semibold">3</div>
+          <div class="w-10 h-10 step-number text-white rounded-xl flex items-center justify-center mr-4 flex-shrink-0 font-bold text-sm">3</div>
           <div>
-            <h4 class="font-semibold text-gray-800">Mulai Integrasi</h4>
-            <p class="text-sm text-gray-600">Integrasikan API ke bot Anda dan nikmati fitur-fiturnya.</p>
+            <h4 class="font-semibold text-white mb-1">Mulai Integrasi</h4>
+            <p class="text-sm text-gray-400">Integrasikan API ke bot Anda dan nikmati fitur-fiturnya.</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Popular Endpoints -->
-    <div class="glass-card rounded-xl shadow-lg p-8">
-      <h3 class="text-2xl font-bold mb-4 gradient-text flex items-center">
+    <div class="glass-card rounded-2xl p-8">
+      <h3 class="text-2xl font-bold mb-2 gradient-text flex items-center">
         <i class="fas fa-fire mr-3"></i>
         Popular Endpoints
       </h3>
+      <p class="text-gray-400 mb-6 text-sm">Endpoint paling banyak digunakan</p>
       <div class="grid md:grid-cols-2 gap-4">
-        <div class="flex items-center p-3 endpoint-item rounded-lg">
-          <i class="fas fa-download mr-3 icon-gradient"></i>
-          <span class="text-gray-700 font-medium">Downloader (YouTube, TikTok, Instagram)</span>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-download mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">Downloader (YouTube, TikTok, Instagram)</span>
         </div>
-        <div class="flex items-center p-3 endpoint-item rounded-lg">
-          <i class="fas fa-brain mr-3 icon-gradient"></i>
-          <span class="text-gray-700 font-medium">AI & ChatGPT Integration</span>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-brain mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">AI & ChatGPT Integration</span>
         </div>
-        <div class="flex items-center p-3 endpoint-item rounded-lg">
-          <i class="fas fa-image mr-3 icon-gradient"></i>
-          <span class="text-gray-700 font-medium">Image Processing & Editor</span>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-image mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">Image Processing & Editor</span>
         </div>
-        <div class="flex items-center p-3 endpoint-item rounded-lg">
-          <i class="fas fa-search mr-3 icon-gradient"></i>
-          <span class="text-gray-700 font-medium">Search & Information API</span>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-search mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">Search & Information API</span>
         </div>
       </div>
     </div>
@@ -429,7 +535,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="text-center mt-12 text-white drop-shadow text-sm fade-in-up delay-400">
+  <footer class="text-center mt-16 text-gray-500 text-sm fade-in-up delay-400 mb-8">
     <p>© 2026 NyxoraApi - By ItsMeMatt</p>
   </footer>
 
@@ -459,8 +565,8 @@
     function updateBatteryStatus() {
       const level = Math.round(battery.level * 100);
       document.getElementById('battery').innerHTML = `
-        <i class="fas fa-battery-full text-3xl mb-2 icon-gradient"></i>
-        <div class="text-gray-700 text-sm font-medium">Battery: ${level}%</div>
+        <i class="fas fa-battery-full text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Battery: ${level}%</div>
       `;
     }
     updateBatteryStatus();
@@ -474,8 +580,8 @@
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');
     document.getElementById('clock').innerHTML = `
-      <i class="far fa-clock text-3xl mb-2 icon-gradient"></i>
-      <div class="text-gray-700 text-sm font-medium">Time: ${hours}:${minutes}:${seconds}</div>
+      <i class="far fa-clock text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Time: ${hours}:${minutes}:${seconds}</div>
     `;
   }
   setInterval(updateTime, 1000);
@@ -486,22 +592,22 @@
     .then(res => res.json())
     .then(data => {
       document.getElementById('total-endpoint').innerHTML = `
-        <i class="fas fa-server text-3xl mb-2 icon-gradient"></i>
-        <div class="text-gray-700 text-sm font-medium">Endpoint: ${data.result.totalfitur}</div>
+        <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Endpoint: ${data.result.totalfitur}</div>
       `;
       document.getElementById('total-request').innerHTML = `
-        <i class="fas fa-chart-line text-3xl mb-2 icon-gradient"></i>
-        <div class="text-gray-700 text-sm font-medium">Request: ${data.result.totalrequest}</div>
+        <i class="fas fa-chart-line text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Request: ${data.result.totalrequest}</div>
       `;
     })
     .catch(err => {
       document.getElementById('total-endpoint').innerHTML = `
-        <i class="fas fa-server text-3xl mb-2 icon-gradient"></i>
-        <div class="text-gray-700 text-sm font-medium">Endpoint: Error</div>
+        <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Endpoint: Error</div>
       `;
       document.getElementById('total-request').innerHTML = `
-        <i class="fas fa-chart-line text-3xl mb-2 icon-gradient"></i>
-        <div class="text-gray-700 text-sm font-medium">Request: Error</div>
+        <i class="fas fa-chart-line text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Request: Error</div>
       `;
       console.error(err);
     });
