@@ -1,4 +1,4 @@
-const gtts = require('node-gtts')
+const axios = require('axios')
 
 module.exports = function (app) {
 
@@ -15,18 +15,24 @@ module.exports = function (app) {
       }
 
       const language = (lang && lang.length === 2) ? lang : 'id'
-      const tts = gtts(language)
+
+      const url =
+        'https://translate.google.com/translate_tts' +
+        `?ie=UTF-8&client=tw-ob&tl=${language}&q=${encodeURIComponent(text)}`
+
+      const audio = await axios.get(url, {
+        responseType: 'arraybuffer',
+        headers: {
+          'User-Agent': 'Mozilla/5.0'
+        }
+      })
 
       res.setHeader('Content-Type', 'audio/mpeg')
-      res.setHeader(
-        'Content-Disposition',
-        'inline; filename="tts.mp3"'
-      )
-
-      tts.stream(text).pipe(res)
+      res.setHeader('Content-Disposition', 'inline; filename="tts.mp3"')
+      res.send(Buffer.from(audio.data))
 
     } catch (e) {
-      res.json({
+      res.status(500).json({
         status: false,
         error: e.message
       })
