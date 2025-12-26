@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rest API'S Gratis</title>
+  <title>Rest Api Gratis</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -295,8 +295,8 @@
     .icon-box {
       width: 56px;
       height: 56px;
-      background: rgba(99, 102, 241, 0.1);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
       border-radius: 14px;
       display: flex;
       align-items: center;
@@ -304,9 +304,16 @@
       transition: all 0.3s ease;
     }
 
+    .icon-box i {
+      color: #6366f1 !important;
+      font-size: 1.5rem;
+    }
+
     .feature-card:hover .icon-box {
-      background: rgba(99, 102, 241, 0.2);
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.5);
       transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
     }
 
     .step-number {
@@ -407,7 +414,7 @@
       <i class="fas fa-code text-6xl text-white header-icon" style="color: #6366f1;"></i>
     </div>
     <h1 class="text-5xl md:text-7xl font-bold mb-4 text-white" style="letter-spacing: -0.02em;">
-      NyxoraApi's
+      Nyxora Api'S
     </h1>
     <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
       API sederhana dengan integrasi yang mudah dan minimalis untuk pengembang Bot WhatsApp.
@@ -418,7 +425,7 @@
   </header>
 
   <!-- Stats Grid -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 fade-in-up delay-100">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-16 fade-in-up delay-100">
     <div id="battery" class="stat-box p-6 rounded-2xl text-center">
       <i class="fas fa-battery-full text-4xl mb-3" style="color: #6366f1;"></i>
       <div class="text-gray-300 text-sm font-medium">Battery: Loading...</div>
@@ -426,6 +433,10 @@
     <div id="clock" class="stat-box p-6 rounded-2xl text-center">
       <i class="far fa-clock text-4xl mb-3" style="color: #6366f1;"></i>
       <div class="text-gray-300 text-sm font-medium">Time: Loading...</div>
+    </div>
+    <div id="ip-address" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">IP: Loading...</div>
     </div>
     <div id="total-endpoint" class="stat-box p-6 rounded-2xl text-center">
       <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
@@ -448,7 +459,7 @@
       <!-- Feature 1 -->
       <div class="feature-card p-8 rounded-2xl">
         <div class="icon-box mb-5">
-          <i class="fas fa-lightning-bolt text-2xl" style="color: #6366f1;"></i>
+          <i class="fas fa-lightning-bolt"></i>
         </div>
         <h3 class="text-xl font-semibold mb-3 text-white">Fast Response</h3>
         <p class="text-gray-400 text-sm leading-relaxed">API dengan response time yang cepat dan stabil untuk kebutuhan bot Anda.</p>
@@ -457,7 +468,7 @@
       <!-- Feature 2 -->
       <div class="feature-card p-8 rounded-2xl">
         <div class="icon-box mb-5">
-          <i class="fas fa-shield-alt text-2xl" style="color: #6366f1;"></i>
+          <i class="fas fa-shield-alt"></i>
         </div>
         <h3 class="text-xl font-semibold mb-3 text-white">Secure & Reliable</h3>
         <p class="text-gray-400 text-sm leading-relaxed">Keamanan data terjamin dengan enkripsi dan sistem yang handal 24/7.</p>
@@ -466,7 +477,7 @@
       <!-- Feature 3 -->
       <div class="feature-card p-8 rounded-2xl">
         <div class="icon-box mb-5">
-          <i class="fas fa-puzzle-piece text-2xl" style="color: #6366f1;"></i>
+          <i class="fas fa-puzzle-piece"></i>
         </div>
         <h3 class="text-xl font-semibold mb-3 text-white">Easy Integration</h3>
         <p class="text-gray-400 text-sm leading-relaxed">Dokumentasi lengkap dan mudah dipahami untuk integrasi yang cepat.</p>
@@ -536,7 +547,7 @@
 
   <!-- Footer -->
   <footer class="text-center mt-16 text-gray-500 text-sm fade-in-up delay-400 mb-8">
-    <p>© 2026 NyxoraApi - By ItsMeMatt</p>
+    <p>© 2026 Nyxora Api'S - By Mats.toreeOfc</p>
   </footer>
 
 </div>
@@ -586,6 +597,23 @@
   }
   setInterval(updateTime, 1000);
   updateTime();
+
+  // Fetch User IP Address
+  fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('ip-address').innerHTML = `
+        <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">IP: ${data.ip}</div>
+      `;
+    })
+    .catch(err => {
+      document.getElementById('ip-address').innerHTML = `
+        <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">IP: Error</div>
+      `;
+      console.error(err);
+    });
 
   // Fetch Status
   fetch('/api/status')
