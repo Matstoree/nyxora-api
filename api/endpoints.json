@@ -255,6 +255,12 @@
   ],
 "tools": [
   {
+  "name": "Cek Rekening",
+  "desc": "Cek validasi rekening bank / e-wallet",
+  "status": "Active",
+  "path": "/tools/cek-rekening?apikey=&bank_code=&account_number="
+  },
+  {
   "name": "Text To Speech",
   "desc": "Convert text to speech (Google TTS)",
   "status": "Active",
