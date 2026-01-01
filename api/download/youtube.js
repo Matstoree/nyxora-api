@@ -85,6 +85,8 @@ const yt = {
 };
 
 module.exports = function (app) {
+
+  // ================== YTMP4 (TETAP) ==================
   app.get("/download/ytmp4", async (req, res) => {
     try {
       const { apikey, url, quality = "480p" } = req.query;
@@ -113,35 +115,48 @@ module.exports = function (app) {
     }
   });
 
+  // ================== YTMP3 (FIXED) ==================
   app.get("/download/ytmp3", async (req, res) => {
     try {
       const { apikey, url } = req.query;
-      if (!apikey || !global.apikey.includes(apikey))
+
+      if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: "Apikey invalid" });
 
       if (!url)
         return res.json({ status: false, error: "URL YouTube tidak valid" });
 
-      const { data } = await axios.get("https://api.soymaycol.icu/ytdl", {
-        params: {
-          url,
-          type: "mp3",
-          apikey: "may-79a0a758"
+      const { data } = await axios.get(
+        "https://api.soymaycol.icu/ytdl",
+        {
+          params: {
+            url,
+            type: "mp3",
+            apikey: "may-79a0a758"
+          }
         }
-      });
+      );
 
-      if (!data.status)
-        return res.json({ status: false, error: "Gagal mengambil audio" });
+      if (!data.status || !data.result?.url) {
+        return res.json({
+          status: false,
+          error: "Gagal mendapatkan audio"
+        });
+      }
 
       res.json({
         status: true,
         creator: "Matstoree",
         type: "audio",
-        result: data.result,
-        user: data.user
+        result: {
+          title: data.result.title,
+          quality: data.result.quality,
+          url: data.result.url
+        }
       });
     } catch (e) {
       res.json({ status: false, error: e.message });
     }
   });
+
 };
