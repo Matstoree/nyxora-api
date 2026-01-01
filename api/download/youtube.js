@@ -1,5 +1,5 @@
-const axios = require("axios");
-const crypto = require("crypto");
+const axios = require("axios")
+const crypto = require("crypto")
 
 const yt = {
   baseHeaders: {
@@ -12,54 +12,54 @@ const yt = {
 
   extractId(url) {
     try {
-      const u = new URL(url);
-      if (u.hostname === "youtu.be") return u.pathname.slice(1);
-      if (u.searchParams.get("v")) return u.searchParams.get("v");
+      const u = new URL(url)
+      if (u.hostname === "youtu.be") return u.pathname.slice(1)
+      if (u.searchParams.get("v")) return u.searchParams.get("v")
       if (u.pathname.includes("/shorts/"))
-        return u.pathname.split("/shorts/")[1].split(/[?&]/)[0];
+        return u.pathname.split("/shorts/")[1].split(/[?&]/)[0]
       if (u.pathname.includes("/embed/"))
-        return u.pathname.split("/embed/")[1].split(/[?&]/)[0];
-      return null;
+        return u.pathname.split("/embed/")[1].split(/[?&]/)[0]
+      return null
     } catch {
-      return null;
+      return null
     }
   },
 
   async getSession() {
     const r = await fetch("https://fast.dlsrv.online/", {
       headers: this.baseHeaders
-    });
-    const token = r.headers.get("x-session-token");
-    if (!token) throw Error("Session token kosong");
-    return token;
+    })
+    const token = r.headers.get("x-session-token")
+    if (!token) throw Error("Session token kosong")
+    return token
   },
 
   pow(session, path) {
-    let nonce = 0;
+    let nonce = 0
     while (true) {
       const h = crypto
         .createHash("sha256")
         .update(`${session}:${path}:${nonce}`)
-        .digest("hex");
+        .digest("hex")
       if (h.startsWith("0000"))
-        return { nonce: String(nonce), powHash: h };
-      nonce++;
+        return { nonce: String(nonce), powHash: h }
+      nonce++
     }
   },
 
   sign(session, path, ts) {
-    const secret = "a8d4e2456d59b90c8402fc4f060982aa";
+    const secret = "a8d4e2456d59b90c8402fc4f060982aa"
     return crypto
       .createHmac("sha256", secret)
       .update(`${session}:${path}:${ts}`)
-      .digest("hex");
+      .digest("hex")
   },
 
   async request(path, body) {
-    const session = await this.getSession();
-    const ts = Date.now().toString();
-    const sig = this.sign(session, path, ts);
-    const { nonce, powHash } = this.pow(session, path);
+    const session = await this.getSession()
+    const ts = Date.now().toString()
+    const sig = this.sign(session, path, ts)
+    const { nonce, powHash } = this.pow(session, path)
 
     const headers = {
       "content-type": "application/json",
@@ -71,37 +71,35 @@ const yt = {
       nonce,
       powhash: powHash,
       ...this.baseHeaders
-    };
+    }
 
     const r = await fetch(`https://fast.dlsrv.online/gateway${path}`, {
       method: "POST",
       headers,
       body: JSON.stringify(body)
-    });
+    })
 
-    if (!r.ok) throw Error("Gagal mengambil data");
-    return r.json();
+    if (!r.ok) throw Error("Gagal mengambil data")
+    return r.json()
   }
-};
+}
 
 module.exports = function (app) {
-
-  // ================== YTMP4 (TETAP) ==================
   app.get("/download/ytmp4", async (req, res) => {
     try {
-      const { apikey, url, quality = "480p" } = req.query;
+      const { apikey, url, quality = "480p" } = req.query
       if (!global.apikey.includes(apikey))
-        return res.json({ status: false, error: "Apikey invalid" });
+        return res.json({ status: false, error: "Apikey invalid" })
 
-      const id = yt.extractId(url);
+      const id = yt.extractId(url)
       if (!id)
-        return res.json({ status: false, error: "URL YouTube tidak valid" });
+        return res.json({ status: false, error: "URL YouTube tidak valid" })
 
-      const q = quality.replace("p", "");
+      const q = quality.replace("p", "")
       const data = await yt.request("/video", {
         videoId: id,
         quality: q
-      });
+      })
 
       res.json({
         status: true,
@@ -109,40 +107,32 @@ module.exports = function (app) {
         type: "video",
         quality,
         result: data
-      });
+      })
     } catch (e) {
-      res.json({ status: false, error: e.message });
+      res.json({ status: false, error: e.message })
     }
-  });
+  })
 
-  // ================== YTMP3 (FIXED) ==================
   app.get("/download/ytmp3", async (req, res) => {
     try {
-      const { apikey, url } = req.query;
+      const { apikey, url } = req.query
 
       if (!global.apikey.includes(apikey))
-        return res.json({ status: false, error: "Apikey invalid" });
+        return res.json({ status: false, error: "Apikey invalid" })
 
       if (!url)
-        return res.json({ status: false, error: "URL YouTube tidak valid" });
+        return res.json({ status: false, error: "URL YouTube tidak valid" })
 
-      const { data } = await axios.get(
-        "https://api.soymaycol.icu/ytdl",
-        {
-          params: {
-            url,
-            type: "mp3",
-            apikey: "may-79a0a758"
-          }
-        }
-      );
+      const apiUrl =
+        "https://api.soymaycol.icu/ytdl" +
+        "?url=" + encodeURIComponent(url) +
+        "&type=mp3" +
+        "&apikey=may-79a0a758"
 
-      if (!data.status || !data.result?.url) {
-        return res.json({
-          status: false,
-          error: "Gagal mendapatkan audio"
-        });
-      }
+      const { data } = await axios.get(apiUrl)
+
+      if (!data.status || !data.result?.url)
+        return res.json({ status: false, error: "Gagal mendapatkan audio" })
 
       res.json({
         status: true,
@@ -153,10 +143,9 @@ module.exports = function (app) {
           quality: data.result.quality,
           url: data.result.url
         }
-      });
+      })
     } catch (e) {
-      res.json({ status: false, error: e.message });
+      res.json({ status: false, error: e.message })
     }
-  });
-
-};
+  })
+}
