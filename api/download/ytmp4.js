@@ -2,7 +2,7 @@ const fetch = require('node-fetch')
 
 const yt = {
   apiVideo: 'https://dlsrv.online/api/download/mp4',
-  baseHeaders: {
+  headers: {
     'accept-encoding': 'gzip, deflate, br, zstd',
     'content-type': 'application/json',
     origin: 'https://yt1s.com.co',
@@ -25,15 +25,14 @@ const yt = {
     }
   },
 
-  async download(videoId, quality = '360p') {
-    const q = quality.replace('p', '')
-    const body = JSON.stringify({ videoId, quality: q })
+  async download(videoId) {
+    const body = JSON.stringify({ videoId, quality: '480' })
     const r = await fetch(this.apiVideo, {
       method: 'POST',
-      headers: this.baseHeaders,
+      headers: this.headers,
       body
     })
-    if (!r.ok) throw new Error('Gagal request ke server')
+    if (!r.ok) throw new Error('Gagal request')
     const html = await r.text()
     const url = html.match(/href='(.+?)';/)?.[1]
     if (!url) throw new Error('Download url tidak ditemukan')
@@ -44,7 +43,7 @@ const yt = {
 module.exports = function (app) {
   app.get('/download/ytmp4', async (req, res) => {
     try {
-      const { apikey, url, quality } = req.query
+      const { apikey, url } = req.query
 
       if (!global.apikey.includes(apikey)) {
         return res.json({ status: false, error: 'Apikey invalid' })
@@ -59,23 +58,19 @@ module.exports = function (app) {
         return res.json({ status: false, error: 'Link YouTube tidak valid' })
       }
 
-      const q = quality || '360p'
-      const downloadUrl = await yt.download(id, q)
+      const downloadUrl = await yt.download(id)
 
       res.json({
         status: true,
         creator: 'ItsMeMatt',
         result: {
           videoId: id,
-          quality: q,
+          quality: '480p',
           downloadUrl
         }
       })
     } catch (e) {
-      res.json({
-        status: false,
-        error: e.message
-      })
+      res.json({ status: false, error: e.message })
     }
   })
-  }
+}
