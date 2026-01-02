@@ -1,12 +1,8 @@
 const axios = require('axios')
-const cheerio = require('cheerio')
 
 async function yt1s(url, type = 'mp3', quality = '128') {
-  const api = 'https://yt1s.com/api/ajaxSearch/index'
-  const convert = 'https://yt1s.com/api/ajaxConvert/convert'
-
-  const { data: search } = await axios.post(
-    api,
+  const { data } = await axios.post(
+    'https://yt1s.biz/api/ajaxSearch',
     new URLSearchParams({
       q: url,
       vt: 'home'
@@ -18,21 +14,21 @@ async function yt1s(url, type = 'mp3', quality = '128') {
     }
   )
 
-  if (!search || !search.links) throw 'Gagal mengambil data'
+  if (!data || !data.links) throw 'Gagal fetch data'
 
   let link
   if (type === 'mp3') {
-    link = search.links.mp3[quality]
+    link = data.links.mp3[quality]
   } else {
-    link = search.links.mp4[quality]
+    link = data.links.mp4[quality]
   }
 
   if (!link) throw 'Kualitas tidak tersedia'
 
   const { data: result } = await axios.post(
-    convert,
+    'https://yt1s.biz/api/ajaxConvert',
     new URLSearchParams({
-      vid: search.vid,
+      vid: data.vid,
       k: link.k
     }).toString(),
     {
@@ -43,9 +39,9 @@ async function yt1s(url, type = 'mp3', quality = '128') {
   )
 
   return {
-    title: search.title,
-    duration: search.t,
-    thumbnail: search.thumb,
+    title: data.title,
+    duration: data.t,
+    thumbnail: data.thumb,
     url: result.dlink
   }
 }
@@ -55,12 +51,10 @@ module.exports = function (app) {
   app.get('/download/ytmp3', async (req, res) => {
     try {
       const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey)) {
+      if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
-      }
-      if (!url) {
+      if (!url)
         return res.json({ status: false, error: 'Url is required' })
-      }
 
       const result = await yt1s(url, 'mp3', '128')
       res.json({
@@ -76,12 +70,10 @@ module.exports = function (app) {
   app.get('/download/ytmp4', async (req, res) => {
     try {
       const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey)) {
+      if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
-      }
-      if (!url) {
+      if (!url)
         return res.json({ status: false, error: 'Url is required' })
-      }
 
       const result = await yt1s(url, 'mp4', '360')
       res.json({
