@@ -1,108 +1,101 @@
-import crypto from 'crypto'
-import axios from 'axios'
+const axios = require('axios')
+const crypto = require('crypto')
 
-const yt = {
-  origin: 'https://v2.yt1s.biz',
+module.exports = function (app) {
 
-  headers() {
-    return {
-      accept: 'application/json, text/plain, */*',
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
-      origin: this.origin
-    }
-  },
-
-  async session() {
-    const r = await axios.get('https://fast.dlsrv.online/', {
-      headers: this.headers()
-    })
-    const token = r.headers['x-session-token']
-    if (!token) throw 'Session token kosong'
-    return token
-  },
-
-  pow(session, path) {
-    let nonce = 0
-    while (true) {
-      const h = crypto
-        .createHash('sha256')
-        .update(`${session}:${path}:${nonce}`)
-        .digest('hex')
-      if (h.startsWith('0000')) {
-        return { nonce: String(nonce), powhash: h }
-      }
-      nonce++
-    }
-  },
-
-  sign(session, path, ts) {
-    const secret = 'a8d4e2456d59b90c8402fc4f060982aa'
-    return crypto
-      .createHmac('sha256', secret)
-      .update(`${session}:${path}:${ts}`)
-      .digest('hex')
-  },
-
-  async audio(videoId, quality = '128') {
-    const path = '/audio'
-    const session = await this.session()
-    const ts = Date.now().toString()
-    const sig = this.sign(session, path, ts)
-    const { nonce, powhash } = this.pow(session, path)
-
-    const headers = {
+  const savetube = {
+    api: {
+      base: 'https://media.savetube.me/api',
+      cdn: '/random-cdn',
+      info: '/v2/info',
+      download: '/download'
+    },
+    headers: {
+      accept: '*/*',
       'content-type': 'application/json',
-      'x-api-auth':
-        'Ig9CxOQPYu3RB7GC21sOcgRPy4uyxFKTx54bFDu07G3eAMkrdVqXY9bBatu4WqTpkADrQ',
-      'x-session-token': session,
-      'x-signature': sig,
-      'x-signature-timestamp': ts,
-      nonce,
-      powhash,
-      ...this.headers()
+      origin: 'https://yt.savetube.me',
+      referer: 'https://yt.savetube.me/',
+      'user-agent': 'Postify/1.0.0'
+    },
+    youtube(url) {
+      const r = [
+        /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+        /youtu\.be\/([a-zA-Z0-9_-]{11})/
+      ]
+      for (const x of r) {
+        const m = url.match(x)
+        if (m) return m[1]
+      }
+      return null
+    },
+    decrypt(enc) {
+      const key = Buffer.from('C5D58EF67A7584E4A29F6C35BBC4EB12', 'hex')
+      const buf = Buffer.from(enc, 'base64')
+      const iv = buf.slice(0, 16)
+      const data = buf.slice(16)
+      const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
+      return JSON.parse(
+        Buffer.concat([decipher.update(data), decipher.final()]).toString()
+      )
+    },
+    async request(url, data = {}, method = 'post') {
+      const res = await axios({
+        method,
+        url,
+        data: method === 'post' ? data : undefined,
+        params: method === 'get' ? data : undefined,
+        headers: this.headers
+      })
+      return res.data
+    },
+    async getCDN() {
+      const r = await this.request(this.api.base + this.api.cdn, {}, 'get')
+      return r.cdn
+    },
+    async mp3(url) {
+      const id = this.youtube(url)
+      if (!id) throw 'Invalid YouTube URL'
+
+      const cdn = await this.getCDN()
+
+      const info = await this.request(`https://${cdn}${this.api.info}`, {
+        url: `https://www.youtube.com/watch?v=${id}`
+      })
+
+      const meta = this.decrypt(info.data)
+
+      const dl = await this.request(`https://${cdn}${this.api.download}`, {
+        id,
+        downloadType: 'audio',
+        quality: '128',
+        key: meta.key
+      })
+
+      return {
+        title: meta.title,
+        duration: meta.duration,
+        thumbnail: meta.thumbnail || `https://i.ytimg.com/vi/${id}/0.jpg`,
+        download: dl.data.downloadUrl
+      }
     }
-
-    const { data } = await axios.post(
-      'https://fast.dlsrv.online/gateway/audio',
-      {
-        videoId,
-        quality
-      },
-      { headers }
-    )
-
-    return data
   }
-}
 
-function extractId(url) {
-  try {
-    const u = new URL(url)
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1)
-    if (u.searchParams.get('v')) return u.searchParams.get('v')
-    if (u.pathname.includes('/shorts/'))
-      return u.pathname.split('/shorts/')[1].split(/[?&]/)[0]
-    return null
-  } catch {
-    return null
-  }
-}
-
-export default function (app) {
   app.get('/download/ytmp3', async (req, res) => {
     try {
       const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey))
+
+      if (!global.apikey.includes(apikey)) {
         return res.json({ status: false, error: 'Apikey invalid' })
-      if (!url)
+      }
+
+      if (!url) {
         return res.json({ status: false, error: 'Url is required' })
+      }
 
-      const id = extractId(url)
-      if (!id)
-        return res.json({ status: false, error: 'URL YouTube tidak valid' })
-
-      const result = await yt.audio(id, '128')
+      const result = await savetube.mp3(url)
 
       res.json({
         status: true,
@@ -110,7 +103,11 @@ export default function (app) {
         result
       })
     } catch (e) {
-      res.json({ status: false, error: e.toString() })
+      res.json({
+        status: false,
+        error: e.toString()
+      })
     }
   })
-}
+
+        }
