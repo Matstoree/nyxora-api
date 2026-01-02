@@ -1,64 +1,47 @@
-const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args))
+const fetch = require('node-fetch')
 
 const yt = {
-  _static: {
-    apiAudio: 'https://dlsrv.online/api/download/mp3',
-    apiVideo: 'https://dlsrv.online/api/download/mp4',
-    baseHeaders: {
-      'accept-encoding': 'gzip, deflate, br, zstd',
-      'content-type': 'application/json',
-      origin: 'https://yt1s.com.co',
-      'user-agent':
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1'
+  apiVideo: 'https://dlsrv.online/api/download/mp4',
+  baseHeaders: {
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'content-type': 'application/json',
+    origin: 'https://yt1s.com.co',
+    'user-agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1'
+  },
+
+  extractId(url) {
+    try {
+      const u = new URL(url)
+      if (u.hostname === 'youtu.be') return u.pathname.slice(1).split(/[?&]/)[0]
+      if (u.searchParams.get('v')) return u.searchParams.get('v')
+      if (u.pathname.includes('/shorts/'))
+        return u.pathname.split('/shorts/')[1].split(/[?&]/)[0]
+      if (u.pathname.includes('/embed/'))
+        return u.pathname.split('/embed/')[1].split(/[?&]/)[0]
+      return null
+    } catch {
+      return null
     }
   },
 
-  _resolvePayload(userFormat = '360p') {
-    const valid = ['64k','96k','128k','256k','320k','144p','240p','360p','480p','720p','1080p']
-    if (!valid.includes(userFormat)) {
-      throw new Error(`Format invalid! Pilih: ${valid.join(', ')}`)
-    }
-    const api = /k$/.test(userFormat) ? this._static.apiAudio : this._static.apiVideo
-    const quality = parseInt(userFormat) + ''
-    return { api, quality }
-  },
-
-  async download(videoId, userFormat = '360p') {
-    const { api, quality } = this._resolvePayload(userFormat)
-    const body = JSON.stringify({ videoId, quality })
-
-    const r = await fetch(api, {
+  async download(videoId, quality = '360p') {
+    const q = quality.replace('p', '')
+    const body = JSON.stringify({ videoId, quality: q })
+    const r = await fetch(this.apiVideo, {
       method: 'POST',
-      headers: this._static.baseHeaders,
+      headers: this.baseHeaders,
       body
     })
-
-    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
-
+    if (!r.ok) throw new Error('Gagal request ke server')
     const html = await r.text()
-    const downloadUrl = html.match(/href='(.+?)';/)?.[1]
-    if (!downloadUrl) throw new Error('Gagal mendapatkan download url')
-
-    return { downloadUrl, quality }
-  }
-}
-
-function extractId(url) {
-  try {
-    const u = new URL(url)
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1)
-    if (u.searchParams.get('v')) return u.searchParams.get('v')
-    if (u.pathname.includes('/shorts/')) return u.pathname.split('/shorts/')[1].split(/[?&]/)[0]
-    if (u.pathname.includes('/embed/')) return u.pathname.split('/embed/')[1].split(/[?&]/)[0]
-    return null
-  } catch {
-    return null
+    const url = html.match(/href='(.+?)';/)?.[1]
+    if (!url) throw new Error('Download url tidak ditemukan')
+    return url
   }
 }
 
 module.exports = function (app) {
-
   app.get('/download/ytmp4', async (req, res) => {
     try {
       const { apikey, url, quality } = req.query
@@ -68,22 +51,26 @@ module.exports = function (app) {
       }
 
       if (!url) {
-        return res.json({ status: false, error: 'Url is required' })
+        return res.json({ status: false, error: 'Url wajib diisi' })
       }
 
-      const id = extractId(url)
+      const id = yt.extractId(url)
       if (!id) {
         return res.json({ status: false, error: 'Link YouTube tidak valid' })
       }
 
-      const result = await yt.download(id, quality || '360p')
+      const q = quality || '360p'
+      const downloadUrl = await yt.download(id, q)
 
       res.json({
         status: true,
         creator: 'ItsMeMatt',
-        result
+        result: {
+          videoId: id,
+          quality: q,
+          downloadUrl
+        }
       })
-
     } catch (e) {
       res.json({
         status: false,
@@ -91,5 +78,4 @@ module.exports = function (app) {
       })
     }
   })
-
-}
+  }
