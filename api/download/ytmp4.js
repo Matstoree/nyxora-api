@@ -1,89 +1,133 @@
-const axios = require('axios')
+import crypto from 'crypto'
 
-async function yt1s(url, type = 'mp3', quality = '128') {
-  const { data } = await axios.post(
-    'https://yt1s.biz/api/ajaxSearch',
-    new URLSearchParams({
-      q: url,
-      vt: 'home'
-    }).toString(),
-    {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+export default function (app) {
+
+  const yt = {
+
+    get baseHeaders() {
+      return {
+        accept: 'application/json, text/plain, */*',
+        'accept-encoding': 'gzip, deflate, br, zstd',
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+        origin: 'https://v2.yt1s.biz'
       }
-    }
-  )
+    },
 
-  if (!data || !data.links) throw 'Gagal fetch data'
-
-  let link
-  if (type === 'mp3') {
-    link = data.links.mp3[quality]
-  } else {
-    link = data.links.mp4[quality]
-  }
-
-  if (!link) throw 'Kualitas tidak tersedia'
-
-  const { data: result } = await axios.post(
-    'https://yt1s.biz/api/ajaxConvert',
-    new URLSearchParams({
-      vid: data.vid,
-      k: link.k
-    }).toString(),
-    {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    extractId(url) {
+      try {
+        const u = new URL(url)
+        if (u.hostname === 'youtu.be') return u.pathname.slice(1)
+        if (u.searchParams.get('v')) return u.searchParams.get('v')
+        if (u.pathname.includes('/shorts/')) return u.pathname.split('/shorts/')[1].split(/[?&]/)[0]
+        if (u.pathname.includes('/embed/')) return u.pathname.split('/embed/')[1].split(/[?&]/)[0]
+        return null
+      } catch {
+        return null
       }
-    }
-  )
+    },
 
-  return {
-    title: data.title,
-    duration: data.t,
-    thumbnail: data.thumb,
-    url: result.dlink
-  }
-}
+    handleFormat(fmt) {
+      const valid = ['144p', '240p', '360p', '480p', '720p', '1080p']
+      if (!valid.includes(fmt)) throw Error(`format invalid: ${valid.join(', ')}`)
+      return { path: '/video', quality: fmt.replace('p', '') }
+    },
 
-module.exports = function (app) {
+    async hit(desc, url, opts, type = 'json') {
+      const r = await fetch(url, opts)
+      if (!r.ok) throw Error(`${desc} ${r.status}`)
+      return type === 'json' ? r.json() : r.text()
+    },
 
-  app.get('/download/ytmp3', async (req, res) => {
-    try {
-      const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey))
-        return res.json({ status: false, error: 'Apikey invalid' })
-      if (!url)
-        return res.json({ status: false, error: 'Url is required' })
-
-      const result = await yt1s(url, 'mp3', '128')
-      res.json({
-        status: true,
-        creator: 'ItsMeMatt',
-        result
+    async getSession() {
+      const r = await fetch('https://fast.dlsrv.online/', {
+        headers: this.baseHeaders
       })
-    } catch (e) {
-      res.json({ status: false, error: e.toString() })
+      const token = r.headers.get('x-session-token')
+      if (!token) throw Error('session kosong')
+      return token
+    },
+
+    pow(session, path) {
+      let nonce = 0
+      while (true) {
+        const h = crypto
+          .createHash('sha256')
+          .update(`${session}:${path}:${nonce}`)
+          .digest('hex')
+        if (h.startsWith('0000')) {
+          return { nonce: nonce.toString(), powHash: h }
+        }
+        nonce++
+      }
+    },
+
+    signature(session, path, ts) {
+      const secret = 'a8d4e2456d59b90c8402fc4f060982aa'
+      return crypto
+        .createHmac('sha256', secret)
+        .update(`${session}:${path}:${ts}`)
+        .digest('hex')
+    },
+
+    async download(videoId, quality = '480p') {
+      const { path, quality: q } = this.handleFormat(quality)
+      const session = await this.getSession()
+      const ts = Date.now().toString()
+      const sig = this.signature(session, path, ts)
+      const { nonce, powHash } = this.pow(session, path)
+
+      const headers = {
+        'content-type': 'application/json',
+        'x-api-auth':
+          'Ig9CxOQPYu3RB7GC21sOcgRPy4uyxFKTx54bFDu07G3eAMkrdVqXY9bBatu4WqTpkADrQ',
+        'x-session-token': session,
+        'x-signature': sig,
+        'x-signature-timestamp': ts,
+        nonce,
+        powhash: powHash,
+        ...this.baseHeaders
+      }
+
+      const api = `https://fast.dlsrv.online/gateway${path}`
+      const body = JSON.stringify({ videoId, quality: q })
+
+      return await this.hit(
+        'download',
+        api,
+        { method: 'POST', headers, body },
+        'json'
+      )
     }
-  })
+  }
 
   app.get('/download/ytmp4', async (req, res) => {
     try {
-      const { apikey, url } = req.query
-      if (!global.apikey.includes(apikey))
-        return res.json({ status: false, error: 'Apikey invalid' })
-      if (!url)
-        return res.json({ status: false, error: 'Url is required' })
+      const { apikey, url, quality } = req.query
 
-      const result = await yt1s(url, 'mp4', '360')
+      if (!global.apikey.includes(apikey)) {
+        return res.json({ status: false, error: 'Apikey invalid' })
+      }
+
+      if (!url) {
+        return res.json({ status: false, error: 'Url is required' })
+      }
+
+      const id = yt.extractId(url)
+      if (!id) throw 'Link YouTube tidak valid'
+
+      const result = await yt.download(id, quality || '480p')
+
       res.json({
         status: true,
         creator: 'ItsMeMatt',
         result
       })
     } catch (e) {
-      res.json({ status: false, error: e.toString() })
+      res.json({
+        status: false,
+        error: e.toString()
+      })
     }
   })
-
 }
