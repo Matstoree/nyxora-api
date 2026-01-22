@@ -1,96 +1,73 @@
 const axios = require("axios");
-const cheerio = require("cheerio");
-const FormData = require("form-data");
 
-/* ===== ILOVEIMG SCRAPER ===== */
+/* ===== AI ENHANCER SCRAPER ===== */
 
-async function getToken() {
-  const html = await axios.get(
-    "https://www.iloveimg.com/upscale-image",
-    { headers: { "User-Agent": "Mozilla/5.0" } }
-  );
+async function aienhancer(image, {
+  model = 3,
+  settings = "kRpBbpnRCD2nL2RxnnuoMo7MBc0zHndTDkWMl9aW+Gw="
+} = {}) {
 
-  const $ = cheerio.load(html.data);
+  if (!image) throw new Error("image is required");
 
-  const script = $("script")
-    .filter((i, el) =>
-      $(el).html() && $(el).html().includes("ilovepdfConfig =")
-    )
-    .html();
+  let base64;
 
-  if (!script) throw new Error("Token tidak ditemukan");
-
-  const json = JSON.parse(
-    script.split("ilovepdfConfig = ")[1].split(";")[0]
-  );
-
-  const csrf = $('meta[name="csrf-token"]').attr("content");
-
-  return { token: json.token, csrf };
-}
-
-async function uploadImage(server, headers, buffer, task) {
-  const form = new FormData();
-  form.append("file", buffer, "image.jpg");
-  form.append("task", task);
-  form.append("chunk", "0");
-  form.append("chunks", "1");
-  form.append("preview", "1");
-
-  const res = await axios.post(
-    `https://${server}.iloveimg.com/v1/upload`,
-    form,
-    { headers: { ...headers, ...form.getHeaders() } }
-  );
-
-  return res.data;
-}
-
-async function hd(buffer, scale = 4) {
-  const { token, csrf } = await getToken();
-
-  const servers = [
-    "api1g","api2g","api3g","api8g","api9g","api10g",
-    "api11g","api12g","api13g","api14g","api15g"
-  ];
-
-  const server = servers[Math.floor(Math.random() * servers.length)];
-
-  const task =
-    "r68zl88mq72xq94j2d5p66bn2z9lrbx20njsbw2qsAvgmzr11lvfhAx9kl87pp6y";
+  if (/^https?:\/\//.test(image)) {
+    const img = await axios.get(image, { responseType: "arraybuffer" });
+    base64 = Buffer.from(img.data).toString("base64");
+  } else {
+    throw new Error("Image harus berupa URL");
+  }
 
   const headers = {
-    Authorization: "Bearer " + token,
-    Origin: "https://www.iloveimg.com",
-    Cookie: "_csrf=" + csrf,
-    "User-Agent": "Mozilla/5.0"
+    authority: "aienhancer.ai",
+    accept: "*/*",
+    "content-type": "application/json",
+    origin: "https://aienhancer.ai",
+    referer: "https://aienhancer.ai/hd-picture-converter",
+    "user-agent":
+      "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome Mobile"
   };
 
-  const upload = await uploadImage(server, headers, buffer, task);
-
-  const form = new FormData();
-  form.append("task", task);
-  form.append("server_filename", upload.server_filename);
-  form.append("scale", scale);
-
-  const res = await axios.post(
-    `https://${server}.iloveimg.com/v1/upscale`,
-    form,
+  const create = await axios.post(
+    "https://aienhancer.ai/api/v1/r/image-enhance/create",
     {
-      headers: { ...headers, ...form.getHeaders() },
-      responseType: "arraybuffer"
-    }
+      model,
+      image: "data:image/png;base64," + base64,
+      settings
+    },
+    { headers }
   );
 
-  return res.data;
+  const taskId = create.data?.data?.id;
+  if (!taskId) throw new Error("Gagal membuat task");
+
+  while (true) {
+    await new Promise(r => setTimeout(r, 2000));
+
+    const result = await axios.post(
+      "https://aienhancer.ai/api/v1/r/image-enhance/result",
+      { task_id: taskId },
+      { headers }
+    );
+
+    const status = result.data?.data?.status;
+
+    if (status === "succeeded") {
+      return result.data.data.output;
+    }
+
+    if (status === "failed") {
+      throw new Error("Enhance gagal");
+    }
+  }
 }
 
-/* ===== EXPRESS ENDPOINT ===== */
+/* ===== EXPRESS ENDPOINT (STYLE SC KAMU) ===== */
 
 module.exports = function (app) {
   app.get("/imagecreator/hd", async (req, res) => {
     try {
-      const { apikey, url, scale } = req.query;
+      const { apikey, url, model } = req.query;
 
       if (!global.apikey.includes(apikey)) {
         return res.json({
@@ -106,26 +83,25 @@ module.exports = function (app) {
         });
       }
 
-      const img = await axios.get(url, {
+      const outputUrl = await aienhancer(url, {
+        model: Number(model) || 3
+      });
+
+      const img = await axios.get(outputUrl, {
         responseType: "arraybuffer"
       });
 
-      const result = await hd(
-        Buffer.from(img.data),
-        Number(scale) || 4
-      );
-
       res.set({
-        "Content-Type": "image/jpeg",
-        "Content-Disposition": "inline; filename=hd.jpg"
+        "Content-Type": "image/png",
+        "Content-Disposition": "inline; filename=hd.png"
       });
 
-      res.send(Buffer.from(result));
+      res.send(Buffer.from(img.data));
     } catch (e) {
       console.error(e);
       res.json({
         status: false,
-        error: "Gagal HD gambar"
+        error: e.message || "Gagal HD gambar"
       });
     }
   });
