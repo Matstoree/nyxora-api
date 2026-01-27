@@ -1,58 +1,55 @@
 const axios = require('axios');
-const cheerio = require('cheerio');
 
 async function capcutdl(url) {
     try {
-        const response = await axios.get(url);
-        const html = response.data;
-        const $ = cheerio.load(html);
-        const videoElement = $('video.player-o3g3Ag');
-        const videoSrc = videoElement.attr('src');
-        const posterSrc = videoElement.attr('poster');
-        const title = $('h1.template-title').text().trim();
-        const actionsDetail = $('p.actions-detail').text().trim();
-        const [date, uses, likes] = actionsDetail.split(',').map(item => item.trim());
-        const authorAvatar = $('span.lv-avatar-image img').attr('src');
-        const authorName = $('span.lv-avatar-image img').attr('alt');
+        const { data } = await axios.post(
+            'https://3bic.com/api/download',
+            { url },
+            {
+                headers: {
+                    "content-type": "application/json",
+                    "origin": "https://3bic.com",
+                    "referer": "https://3bic.com/",
+                    "user-agent": "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/133.0.0.0 Mobile Safari/537.36"
+                }
+            }
+        );
 
-        if (!videoSrc || !posterSrc || !title || !date || !uses || !likes || !authorAvatar || !authorName) {
-            throw new Error('Beberapa elemen penting tidak ditemukan di halaman.');
+        if (!data || !data.originalVideoUrl) {
+            throw new Error('Gagal mengambil data video');
         }
 
-        return {            
-            title: title,
-            date: date,
-            pengguna: uses,
-            likes: likes,
-            author: {
-                name: authorName,
-                avatarUrl: authorAvatar
-            },
-            videoUrl: videoSrc,
-            posterUrl: posterSrc
+        return {
+            ...data,
+            originalVideoUrl: 'https://3bic.com' + data.originalVideoUrl
         };
-    } catch (error) {
-        console.error('Error fetching video details:', error.message);
-        return null;
+    } catch (err) {
+        throw new Error(err.message);
     }
 }
 
 module.exports = function (app) {
-app.get('/download/capcut', async (req, res) => {
-       const { apikey } = req.query;
-            if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
-            const { url } = req.query;
-            if (!url) {
-                return res.json({ status: false, error: 'Url is required' });
-            }
+    app.get('/download/capcut', async (req, res) => {
+        const { apikey, url } = req.query;
+
+        if (!apikey) return res.json({ status: false, error: 'Apikey required' });
+        if (!global.apikey.includes(apikey))
+            return res.json({ status: false, error: 'Apikey invalid' });
+
+        if (!url)
+            return res.json({ status: false, error: 'Url is required' });
+
         try {
-            const results = await capcutdl(url);
+            const result = await capcutdl(url);
             res.status(200).json({
                 status: true,
-                result: results
+                result
             });
         } catch (error) {
-            res.status(500).send(`Error: ${error.message}`);
+            res.status(500).json({
+                status: false,
+                error: error.message
+            });
         }
-});
-}
+    });
+};
