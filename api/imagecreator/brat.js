@@ -8,9 +8,12 @@ module.exports = function app (app) {
       if (!apikey || !text) return res.json({ status: false, error: 'Parameter tidak lengkap' })
       if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
 
-      const buffer = await getBuffer(
-        `https://aqul-brat.hf.space/?text=${encodeURIComponent(text)}`
-      )
+      const buffer = (
+        await axios.get(
+          `https://aqul-brat.hf.space/?text=${encodeURIComponent(text)}`,
+          { responseType: 'arraybuffer' }
+        )
+      ).data
 
       res.writeHead(200, {
         'Content-Type': 'image/webp',
@@ -18,8 +21,8 @@ module.exports = function app (app) {
       })
       res.end(buffer)
 
-    } catch (error) {
-      res.status(500).send(`Error: ${error.message}`)
+    } catch (e) {
+      res.status(500).json({ status: false, error: e.message })
     }
   })
 
@@ -29,17 +32,22 @@ module.exports = function app (app) {
       if (!apikey || !text) return res.json({ status: false, error: 'Parameter tidak lengkap' })
       if (!global.apikey.includes(apikey)) return res.json({ status: false, error: 'Apikey invalid' })
 
-      const url = `https://brat.siputzx.my.id/gif?text=${encodeURIComponent(text)}`
-      const buffer = (await axios.get(url, { responseType: 'arraybuffer' })).data
+      const api = `https://api.mitzuki.xyz/maker/bratvid?text=${encodeURIComponent(text)}&apikey=sk-e571cf9741c2cf987ff62cfa45eddb2afdbe9b3fa01a8cd11b17aaa6572021c9`
+      const result = (await axios.get(api)).data
+      if (!result.status || !result.data?.video_url) return res.json({ status: false, error: 'Gagal generate video' })
+
+      const buffer = (
+        await axios.get(result.data.video_url, { responseType: 'arraybuffer' })
+      ).data
 
       res.writeHead(200, {
-        'Content-Type': 'image/gif',
+        'Content-Type': 'video/mp4',
         'Content-Length': buffer.length
       })
       res.end(buffer)
 
-    } catch (error) {
-      res.status(500).send(`Error: ${error.message}`)
+    } catch (e) {
+      res.status(500).json({ status: false, error: e.message })
     }
   })
 
