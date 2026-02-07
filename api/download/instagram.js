@@ -1,4 +1,6 @@
 const axios = require("axios");
+const FormData = require("form-data");
+const cheerio = require("cheerio");
 
 module.exports = function (app) {
   app.get("/download/instagram", async (req, res) => {
@@ -19,30 +21,53 @@ module.exports = function (app) {
         });
       }
 
-      const { data } = await axios.get(
-        "https://api.deline.web.id/downloader/ig",
+      const form = new FormData();
+      form.append("url", url);
+      form.append("action", "post");
+
+      const response = await axios.post(
+        "https://snapinsta.top/action.php",
+        form,
         {
-          params: { url }
+          headers: {
+            ...form.getHeaders(),
+            "user-agent":
+              "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/144.0.0.0 Mobile Safari/537.36",
+            "origin": "https://snapinsta.top",
+            "referer": "https://snapinsta.top/"
+          }
         }
       );
 
-      if (!data || !data.status) {
+      const $ = cheerio.load(response.data);
+      const images = [];
+      const videos = [];
+
+      $(".download-items__btn a").each((_, el) => {
+        let link = $(el).attr("href");
+        if (!link) return;
+        if (!link.startsWith("http")) link = "https://snapinsta.top" + link;
+
+        if (link.includes(".mp4")) videos.push(link);
+        else images.push(link);
+      });
+
+      if (!images.length && !videos.length) {
         return res.json({
           status: false,
-          error: "Gagal mengambil media Instagram"
+          error: "Media tidak ditemukan"
         });
       }
-
-      const media = data.result.media;
 
       res.json({
         status: true,
         creator: "Matstoree",
         result: {
-          images: media.images || [],
-          videos: media.videos || []
+          images,
+          videos
         }
       });
+
     } catch (err) {
       res.json({
         status: false,
