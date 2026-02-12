@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rest Api'S Gratis</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * {
       margin: 0;
@@ -18,8 +19,11 @@
       background: #0a0a0a;
       color: #ffffff;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
 
+    /* Animated Background */
     body::before {
       content: '';
       position: fixed;
@@ -27,7 +31,25 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grid Background */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
       pointer-events: none;
       z-index: 0;
     }
@@ -38,6 +60,7 @@
       padding: 1rem;
     }
 
+    /* Navbar */
     .navbar {
       position: fixed;
       top: 0;
@@ -59,12 +82,13 @@
       justify-content: center;
       align-items: center;
       gap: 5px;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hamburger:hover {
       background: rgba(30, 30, 30, 0.9);
       border-color: rgba(99, 102, 241, 0.3);
+      transform: scale(1.05);
     }
 
     .hamburger span {
@@ -72,7 +96,7 @@
       height: 2px;
       background: #ffffff;
       border-radius: 2px;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hamburger.active span:nth-child(1) {
@@ -87,6 +111,7 @@
       transform: rotate(-45deg) translate(5px, -5px);
     }
 
+    /* Side Menu */
     .side-menu {
       position: fixed;
       top: 0;
@@ -96,7 +121,7 @@
       background: rgba(15, 15, 15, 0.98);
       backdrop-filter: blur(40px);
       border-left: 1px solid rgba(255, 255, 255, 0.1);
-      transition: right 0.4s ease;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 999;
       padding: 2rem;
       overflow-y: auto;
@@ -119,7 +144,7 @@
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -134,6 +159,11 @@
     .menu-item i {
       font-size: 1.5rem;
       color: #6366f1;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-item:hover i {
+      transform: scale(1.1);
     }
 
     .overlay {
@@ -155,14 +185,55 @@
       visibility: visible;
     }
 
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .delay-100 { animation-delay: 0.1s; opacity: 0; }
+    .delay-200 { animation-delay: 0.2s; opacity: 0; }
+    .delay-300 { animation-delay: 0.3s; opacity: 0; }
+    .delay-400 { animation-delay: 0.4s; opacity: 0; }
+
+    /* Stat Box */
     .stat-box {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.3s ease;
-      padding: 1.5rem;
-      border-radius: 1rem;
-      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .stat-box:hover::before {
+      left: 100%;
     }
 
     .stat-box:hover {
@@ -171,13 +242,30 @@
       transform: translateY(-5px);
     }
 
+    /* Feature Card */
     .feature-card {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.3s ease;
-      padding: 2rem;
-      border-radius: 1rem;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
     }
 
     .feature-card:hover {
@@ -186,12 +274,15 @@
       transform: translateY(-8px);
     }
 
+    .header-icon {
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.6));
+    }
+
     .glass-card {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 2rem;
-      border-radius: 1rem;
     }
 
     .gradient-text {
@@ -210,12 +301,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.25rem;
+      transition: all 0.3s ease;
     }
 
     .icon-box i {
-      color: #6366f1;
+      color: #6366f1 !important;
       font-size: 1.5rem;
+    }
+
+    .feature-card:hover .icon-box {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
     }
 
     .step-number {
@@ -223,14 +321,19 @@
       box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
     }
 
-    .grid { display: grid; gap: 1rem; }
-    .grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    
-    @media (max-width: 768px) {
-      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .endpoint-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
     }
 
+    .endpoint-item:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateX(5px);
+    }
+
+    /* Scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
     }
@@ -243,10 +346,15 @@
       background: rgba(99, 102, 241, 0.3);
       border-radius: 4px;
     }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.5);
+    }
   </style>
 </head>
 <body>
 
+<!-- Navbar -->
 <nav class="navbar">
   <div class="hamburger" id="hamburger">
     <span></span>
@@ -255,163 +363,202 @@
   </div>
 </nav>
 
+<!-- Overlay -->
 <div class="overlay" id="overlay"></div>
 
+<!-- Side Menu -->
 <div class="side-menu" id="sideMenu">
   <div class="menu-header">
-    <h2 class="gradient-text" style="font-size: 1.5rem; font-weight: 700;">NyxoraApi Menu</h2>
-    <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 0.5rem;">Navigate through options</p>
+    <h2 class="gradient-text text-2xl font-bold">NyxoraApi Menu</h2>
+    <p class="text-gray-400 text-sm mt-2">Navigate through options</p>
   </div>
   
   <div class="menu-item" onclick="window.location.href='/docs'">
     <i class="fas fa-book"></i>
     <div>
-      <h3 style="font-weight: 600; color: white;">Dokumentasi API</h3>
-      <p style="font-size: 0.75rem; color: #9ca3af;">Panduan lengkap penggunaan</p>
+      <h3 class="font-semibold text-white">Dokumentasi API</h3>
+      <p class="text-xs text-gray-400">Panduan lengkap penggunaan</p>
     </div>
   </div>
 
   <div class="menu-item" onclick="window.location.href='/panel/'">
     <i class="fas fa-shopping-bag"></i>
     <div>
-      <h3 style="font-weight: 600; color: white;">Beli Panel</h3>
-      <p style="font-size: 0.75rem; color: #9ca3af;">Panel Pterodactly Bot WhatsApp</p>
+      <h3 class="font-semibold text-white">Beli Panel</h3>
+      <p class="text-xs text-gray-400">Panel Pterodactly Bot WhatsApp</p>
     </div>
   </div>
 
   <div class="menu-item" onclick="window.location.href='https://wa.me/6282191987064'">
     <i class="fab fa-whatsapp"></i>
     <div>
-      <h3 style="font-weight: 600; color: white;">Contact Owner</h3>
-      <p style="font-size: 0.75rem; color: #9ca3af;">Hubungi via WhatsApp</p>
+      <h3 class="font-semibold text-white">Contact Owner</h3>
+      <p class="text-xs text-gray-400">Hubungi via WhatsApp</p>
     </div>
   </div>
 
   <div class="menu-item" onclick="window.open('https://chat.whatsapp.com/F73kgNjE6DdBe5oBnYlQFi', '_blank')">
     <i class="fas fa-rss"></i>
     <div>
-      <h3 style="font-weight: 600; color: white;">Group</h3>
-      <p style="font-size: 0.75rem; color: #9ca3af;">Join WhatsApp Group Nyxora</p>
+      <h3 class="font-semibold text-white">Group</h3>
+      <p class="text-xs text-gray-400">Join WhatsApp Group Nyxora</p>
     </div>
   </div>
 </div>
 
-<div style="max-width: 72rem; margin: 0 auto;" class="container-main">
+<div class="max-w-6xl mx-auto container-main" style="padding-top: 4rem;">
 
-  <header style="text-align: center; margin-bottom: 4rem; padding-top: 4rem;">
-    <div style="margin-bottom: 1.5rem;">
-      <i class="fas fa-code" style="font-size: 3.75rem; color: #6366f1;"></i>
+  <!-- Header -->
+  <header class="text-center mb-16 fade-in-up">
+    <div class="mb-6">
+      <i class="fas fa-code text-6xl text-white header-icon" style="color: #6366f1;"></i>
     </div>
-    <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; color: white;">
+    <h1 class="text-5xl md:text-7xl font-bold mb-4 text-white" style="letter-spacing: -0.02em;">
       Nyxora Api'S
     </h1>
-    <p style="color: #d1d5db; font-size: 1.125rem; max-width: 42rem; margin: 0 auto;">
+    <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
       API sederhana dengan integrasi yang mudah dan minimalis untuk pengembang Bot WhatsApp.
     </p>
-    <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem; font-weight: 500;">
+    <p class="mt-4 text-gray-500 text-sm font-medium">
       By Mats.toreeOfc
     </p>
   </header>
 
-  <div class="grid grid-3" style="margin-bottom: 4rem;">
-    <div id="battery" class="stat-box">
-      <i class="fas fa-battery-full" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Battery: Loading...</div>
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-16 fade-in-up delay-100">
+    <div id="battery" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-battery-full text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Battery: Loading...</div>
     </div>
-    <div id="clock" class="stat-box">
-      <i class="far fa-clock" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Time: Loading...</div>
+    <div id="clock" class="stat-box p-6 rounded-2xl text-center">
+      <i class="far fa-clock text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Time: Loading...</div>
     </div>
-    <div id="ip-address" class="stat-box">
-      <i class="fas fa-globe" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">IP: Loading...</div>
+    <div id="ip-address" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">IP: Loading...</div>
     </div>
-    <div id="location" class="stat-box">
-      <i class="fas fa-map-marker-alt" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Location: Loading...</div>
+    <div id="location" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-map-marker-alt text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Location: Loading...</div>
     </div>
-    <div id="total-endpoint" class="stat-box">
-      <i class="fas fa-server" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Endpoint: Loading...</div>
+    <div id="total-endpoint" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Endpoint: Loading...</div>
     </div>
-    <div id="total-request" class="stat-box">
-      <i class="fas fa-chart-line" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Request: Loading...</div>
+    <div id="total-request" class="stat-box p-6 rounded-2xl text-center">
+      <i class="fas fa-chart-line text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Request: Loading...</div>
     </div>
   </div>
 
-  <section style="max-width: 80rem; margin: 0 auto;">
-    <div style="text-align: center; margin-bottom: 3rem;">
-      <h2 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 0.75rem;" class="gradient-text">Fitur Unggulan</h2>
-      <p style="color: #9ca3af; font-size: 0.875rem;">Solusi API terbaik untuk bot Anda</p>
+  <!-- Features Section -->
+  <section class="max-w-5xl mx-auto fade-in-up delay-200">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold gradient-text mb-3">Fitur Unggulan</h2>
+      <p class="text-gray-400 text-sm">Solusi API terbaik untuk bot Anda</p>
     </div>
     
-    <div class="grid grid-3" style="margin-bottom: 4rem;">
-      <div class="feature-card">
-        <div class="icon-box">
+    <div class="grid md:grid-cols-3 gap-6 mb-16">
+      <!-- Feature 1 -->
+      <div class="feature-card p-8 rounded-2xl">
+        <div class="icon-box mb-5">
           <i class="fas fa-fire"></i>
         </div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: white;">Fast Response</h3>
-        <p style="color: #9ca3af; font-size: 0.875rem;">API dengan response time yang cepat dan stabil untuk kebutuhan bot Anda.</p>
+        <h3 class="text-xl font-semibold mb-3 text-white">Fast Response</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">API dengan response time yang cepat dan stabil untuk kebutuhan bot Anda.</p>
       </div>
 
-      <div class="feature-card">
-        <div class="icon-box">
+      <!-- Feature 2 -->
+      <div class="feature-card p-8 rounded-2xl">
+        <div class="icon-box mb-5">
           <i class="fas fa-rocket"></i>
         </div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: white;">Secure & Reliable</h3>
-        <p style="color: #9ca3af; font-size: 0.875rem;">Keamanan data terjamin dengan enkripsi dan sistem yang handal 24/7.</p>
+        <h3 class="text-xl font-semibold mb-3 text-white">Secure & Reliable</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Keamanan data terjamin dengan enkripsi dan sistem yang handal 24/7.</p>
       </div>
 
-      <div class="feature-card">
-        <div class="icon-box">
+      <!-- Feature 3 -->
+      <div class="feature-card p-8 rounded-2xl">
+        <div class="icon-box mb-5">
           <i class="fas fa-puzzle-piece"></i>
         </div>
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: white;">Easy Integration</h3>
-        <p style="color: #9ca3af; font-size: 0.875rem;">Dokumentasi lengkap dan mudah dipahami untuk integrasi yang cepat.</p>
+        <h3 class="text-xl font-semibold mb-3 text-white">Easy Integration</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">Dokumentasi lengkap dan mudah dipahami untuk integrasi yang cepat.</p>
       </div>
     </div>
 
-    <div class="glass-card" style="margin-bottom: 1.5rem;">
-      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center;" class="gradient-text">
-        <i class="fas fa-rocket" style="margin-right: 0.75rem;"></i>
+    <!-- Getting Started -->
+    <div class="glass-card rounded-2xl p-8 mb-6">
+      <h3 class="text-2xl font-bold mb-2 gradient-text flex items-center">
+        <i class="fas fa-rocket mr-3"></i>
         Getting Started
       </h3>
-      <p style="color: #9ca3af; margin-bottom: 1.5rem; font-size: 0.875rem;">Mulai gunakan API dalam 3 langkah mudah</p>
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
-        <div style="display: flex; align-items: flex-start;">
-          <div class="step-number" style="width: 2.5rem; height: 2.5rem; color: white; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 700; font-size: 0.875rem;">1</div>
+      <p class="text-gray-400 mb-6 text-sm">Mulai gunakan API dalam 3 langkah mudah</p>
+      <div class="space-y-4">
+        <div class="flex items-start">
+          <div class="w-10 h-10 step-number text-white rounded-xl flex items-center justify-center mr-4 flex-shrink-0 font-bold text-sm">1</div>
           <div>
-            <h4 style="font-weight: 600; color: white; margin-bottom: 0.25rem;">Dapatkan API Key</h4>
-            <p style="font-size: 0.875rem; color: #9ca3af;">Hubungi owner untuk mendapatkan apikey.</p>
+            <h4 class="font-semibold text-white mb-1">Dapatkan API Key</h4>
+            <p class="text-sm text-gray-400">Hubungi owner untuk mendapatkan apikey.</p>
           </div>
         </div>
-        <div style="display: flex; align-items: flex-start;">
-          <div class="step-number" style="width: 2.5rem; height: 2.5rem; color: white; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 700; font-size: 0.875rem;">2</div>
+        <div class="flex items-start">
+          <div class="w-10 h-10 step-number text-white rounded-xl flex items-center justify-center mr-4 flex-shrink-0 font-bold text-sm">2</div>
           <div>
-            <h4 style="font-weight: 600; color: white; margin-bottom: 0.25rem;">Baca Dokumentasi</h4>
-            <p style="font-size: 0.875rem; color: #9ca3af;">Pelajari endpoint yang tersedia dan cara penggunaannya.</p>
+            <h4 class="font-semibold text-white mb-1">Baca Dokumentasi</h4>
+            <p class="text-sm text-gray-400">Pelajari endpoint yang tersedia dan cara penggunaannya.</p>
           </div>
         </div>
-        <div style="display: flex; align-items: flex-start;">
-          <div class="step-number" style="width: 2.5rem; height: 2.5rem; color: white; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 700; font-size: 0.875rem;">3</div>
+        <div class="flex items-start">
+          <div class="w-10 h-10 step-number text-white rounded-xl flex items-center justify-center mr-4 flex-shrink-0 font-bold text-sm">3</div>
           <div>
-            <h4 style="font-weight: 600; color: white; margin-bottom: 0.25rem;">Mulai Integrasi</h4>
-            <p style="font-size: 0.875rem; color: #9ca3af;">Integrasikan API ke bot Anda dan nikmati fitur-fiturnya.</p>
+            <h4 class="font-semibold text-white mb-1">Mulai Integrasi</h4>
+            <p class="text-sm text-gray-400">Integrasikan API ke bot Anda dan nikmati fitur-fiturnya.</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Endpoints -->
+    <div class="glass-card rounded-2xl p-8">
+      <h3 class="text-2xl font-bold mb-2 gradient-text flex items-center">
+        <i class="fas fa-fire mr-3"></i>
+        Popular Endpoints
+      </h3>
+      <p class="text-gray-400 mb-6 text-sm">Endpoint paling banyak digunakan</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-download mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">Downloader (YouTube, TikTok, Instagram)</span>
+        </div>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-brain mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">AI & ChatGPT Integration</span>
+        </div>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-image mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">Image Processing & Editor</span>
+        </div>
+        <div class="flex items-center p-4 endpoint-item rounded-xl">
+          <i class="fas fa-search mr-3 text-xl" style="color: #6366f1;"></i>
+          <span class="text-gray-300 font-medium text-sm">Search & Information API</span>
         </div>
       </div>
     </div>
 
   </section>
 
-  <footer style="text-align: center; margin-top: 4rem; color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem;">
+  <!-- Footer -->
+  <footer class="text-center mt-16 text-gray-500 text-sm fade-in-up delay-400 mb-8">
     <p>© 2026 Nyxora Api'S - By Mats.toreeOfc</p>
   </footer>
 
 </div>
 
+<!-- JavaScript -->
 <script>
+  // Hamburger Menu Toggle
   const hamburger = document.getElementById('hamburger');
   const sideMenu = document.getElementById('sideMenu');
   const overlay = document.getElementById('overlay');
@@ -428,78 +575,86 @@
     overlay.classList.remove('active');
   });
 
+  // Battery Status
   navigator.getBattery().then(battery => {
     function updateBatteryStatus() {
       const level = Math.round(battery.level * 100);
       document.getElementById('battery').innerHTML = `
-        <i class="fas fa-battery-full" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Battery: ${level}%</div>
+        <i class="fas fa-battery-full text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Battery: ${level}%</div>
       `;
     }
     updateBatteryStatus();
     battery.addEventListener('levelchange', updateBatteryStatus);
   });
 
+  // Real Time Clock
   function updateTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');
     document.getElementById('clock').innerHTML = `
-      <i class="far fa-clock" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-      <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Time: ${hours}:${minutes}:${seconds}</div>
+      <i class="far fa-clock text-4xl mb-3" style="color: #6366f1;"></i>
+      <div class="text-gray-300 text-sm font-medium">Time: ${hours}:${minutes}:${seconds}</div>
     `;
   }
   setInterval(updateTime, 1000);
   updateTime();
 
+  // Fetch User IP and Location
   fetch('https://ipapi.co/json/')
     .then(res => res.json())
     .then(data => {
+      // Display IP Address
       document.getElementById('ip-address').innerHTML = `
-        <i class="fas fa-globe" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">IP: ${data.ip}</div>
+        <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">IP: ${data.ip}</div>
       `;
       
+      // Display Location (City, Country)
       const city = data.city || 'Unknown';
       const country = data.country_name || 'Unknown';
       document.getElementById('location').innerHTML = `
-        <i class="fas fa-map-marker-alt" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Location: ${city}, ${country}</div>
+        <i class="fas fa-map-marker-alt text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Location: ${city}, ${country}</div>
       `;
     })
     .catch(err => {
       document.getElementById('ip-address').innerHTML = `
-        <i class="fas fa-globe" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">IP: Error</div>
+        <i class="fas fa-globe text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">IP: Error</div>
       `;
       document.getElementById('location').innerHTML = `
-        <i class="fas fa-map-marker-alt" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Location: Error</div>
+        <i class="fas fa-map-marker-alt text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Location: Error</div>
       `;
+      console.error(err);
     });
 
+  // Fetch Status
   fetch('/api/status')
     .then(res => res.json())
     .then(data => {
       document.getElementById('total-endpoint').innerHTML = `
-        <i class="fas fa-server" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Endpoint: ${data.result.totalfitur}</div>
+        <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Endpoint: ${data.result.totalfitur}</div>
       `;
       document.getElementById('total-request').innerHTML = `
-        <i class="fas fa-chart-line" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Request: ${data.result.totalrequest}</div>
+        <i class="fas fa-chart-line text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Request: ${data.result.totalrequest}</div>
       `;
     })
     .catch(err => {
       document.getElementById('total-endpoint').innerHTML = `
-        <i class="fas fa-server" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Endpoint: Error</div>
+        <i class="fas fa-server text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Endpoint: Error</div>
       `;
       document.getElementById('total-request').innerHTML = `
-        <i class="fas fa-chart-line" style="font-size: 2.25rem; margin-bottom: 0.75rem; color: #6366f1;"></i>
-        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 500;">Request: Error</div>
+        <i class="fas fa-chart-line text-4xl mb-3" style="color: #6366f1;"></i>
+        <div class="text-gray-300 text-sm font-medium">Request: Error</div>
       `;
+      console.error(err);
     });
 </script>
 
