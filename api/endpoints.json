@@ -386,14 +386,14 @@
       "path": "/imagecreator/bratvideo?apikey=&text="
     }
   ],
-  "maker": [
-    {
-      "name": "Fake Call",
-      "desc": "Generate fake call image",
-      "status": "Active",
-      "path": "/maker/fakecall?apikey=&nama=&durasi=&image="
-    }
-  ],
+"maker": [
+  {
+    "name": "Fakeml",
+    "desc": "Generate fake Mobile Legends profile image",
+    "status": "Active",
+    "path": "/maker/fakeml?apikey=&nickname=&image="
+  }
+],
   "api": [
     {
       "name": "Status Api",
