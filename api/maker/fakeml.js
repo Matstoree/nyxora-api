@@ -1,5 +1,4 @@
 const { createCanvas, loadImage } = require('@napi-rs/canvas');
-const axios = require('axios');
 
 module.exports = function (app) {
   app.get('/maker/fakeml', async (req, res) => {
@@ -11,16 +10,13 @@ module.exports = function (app) {
     if (!global.apikey || !global.apikey.includes(apikey))
       return res.json({ status: false, error: 'Apikey invalid' });
 
-    if (!nickname)
-      return res.json({ status: false, error: 'Nickname required' });
-
-    if (!image)
-      return res.json({ status: false, error: 'Image URL required' });
+    if (!nickname || !image)
+      return res.json({ status: false, error: 'Nickname & image required' });
 
     try {
       const bg = await loadImage('https://files.catbox.moe/liplnf.jpg');
-      const frameOverlay = await loadImage('https://files.catbox.moe/2vm2lt.png');
-      const userImage = await loadImage(image);
+      const frame = await loadImage('https://files.catbox.moe/2vm2lt.png');
+      const avatar = await loadImage(image);
 
       const canvas = createCanvas(bg.width, bg.height);
       const ctx = canvas.getContext('2d');
@@ -34,13 +30,12 @@ module.exports = function (app) {
       const avatarX = centerX + (frameSize - avatarSize) / 2;
       const avatarY = centerY + (frameSize - avatarSize) / 2 - 3;
 
-      const { width, height } = userImage;
-      const minSide = Math.min(width, height);
-      const cropX = (width - minSide) / 2;
-      const cropY = (height - minSide) / 2;
+      const minSide = Math.min(avatar.width, avatar.height);
+      const cropX = (avatar.width - minSide) / 2;
+      const cropY = (avatar.height - minSide) / 2;
 
       ctx.drawImage(
-        userImage,
+        avatar,
         cropX,
         cropY,
         minSide,
@@ -51,17 +46,12 @@ module.exports = function (app) {
         avatarSize
       );
 
-      ctx.drawImage(frameOverlay, centerX, centerY, frameSize, frameSize);
+      ctx.drawImage(frame, centerX, centerY, frameSize, frameSize);
 
-      const maxFontSize = 36;
-      const minFontSize = 24;
-      const maxChar = 11;
-      let fontSize = maxFontSize;
-
-      if (nickname.length > maxChar) {
-        const excess = nickname.length - maxChar;
-        fontSize -= excess * 2;
-        if (fontSize < minFontSize) fontSize = minFontSize;
+      let fontSize = 36;
+      if (nickname.length > 11) {
+        fontSize -= (nickname.length - 11) * 2;
+        if (fontSize < 24) fontSize = 24;
       }
 
       ctx.font = `${fontSize}px Arial`;
@@ -70,14 +60,12 @@ module.exports = function (app) {
 
       const textX = canvas.width / 2 + 13;
       const textY = centerY + frameSize + 15;
-
-      const metrics = ctx.measureText(nickname);
       const maxWidth = frameSize + 60;
-      let drawName = nickname;
 
-      if (metrics.width > maxWidth) {
-        for (let len = nickname.length; len > 0; len--) {
-          const sub = nickname.slice(0, len) + '…';
+      let drawName = nickname.trim();
+      if (ctx.measureText(drawName).width > maxWidth) {
+        for (let i = drawName.length; i > 0; i--) {
+          const sub = drawName.slice(0, i) + '…';
           if (ctx.measureText(sub).width <= maxWidth) {
             drawName = sub;
             break;
@@ -90,10 +78,10 @@ module.exports = function (app) {
       const buffer = canvas.toBuffer('image/png');
 
       res.setHeader('Content-Type', 'image/png');
-      res.send(buffer);
+      res.end(buffer);
 
-    } catch (e) {
-      res.status(500).json({ status: false, error: e.message });
+    } catch (err) {
+      res.status(500).json({ status: false, error: err.message });
     }
   });
 };
