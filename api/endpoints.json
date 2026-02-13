@@ -386,14 +386,6 @@
       "path": "/imagecreator/bratvideo?apikey=&text="
     }
   ],
-"maker": [
-  {
-    "name": "Fakeml",
-    "desc": "Generate fake Mobile Legends profile image",
-    "status": "Active",
-    "path": "/maker/fakeml?apikey=&nickname=&image="
-  }
-],
   "api": [
     {
       "name": "Status Api",
