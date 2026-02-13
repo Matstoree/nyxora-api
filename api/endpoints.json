@@ -386,6 +386,14 @@
       "path": "/imagecreator/bratvideo?apikey=&text="
     }
   ],
+  "maker": [
+    {
+      "name": "Fake Call",
+      "desc": "Generate fake call image",
+      "status": "Active",
+      "path": "/maker/fakecall?apikey=&nama=&durasi=&image="
+    }
+  ],
   "api": [
     {
       "name": "Status Api",
