@@ -35,80 +35,10 @@ const spotifyCreds = async () => {
   }
 }
 
-const searchSpotify = async (query) => {
-  const creds = await spotifyCreds()
-  if (!creds.status) return creds
-
-  const { data } = await axios.get(
-    `https://api.spotify.com/v1/search?query=${encodeURIComponent(
-      query
-    )}&type=track&offset=0&limit=1`,
-    {
-      headers: { Authorization: `Bearer ${creds.token}` }
-    }
-  )
-
-  if (!data.tracks.items.length)
-    return { status: false, msg: 'Music not found!' }
-
-  const v = data.tracks.items[0]
-
-  return {
-    status: true,
-    data: {
-      title: `${v.album.artists[0].name} - ${v.name}`,
-      duration: convert(v.duration_ms),
-      popularity: `${v.popularity}%`,
-      preview: v.preview_url,
-      url: v.external_urls.spotify,
-      thumbnail: v.album.images[0]?.url || null
-    }
-  }
-}
-
-const spotifyDownload = async (url) => {
-  try {
-    const { data: meta } = await axios.get(
-      `https://api.fabdl.com/spotify/get?url=${encodeURIComponent(url)}`,
-      {
-        headers: {
-          accept: 'application/json, text/plain, */*',
-          'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-          Referer: 'https://spotifydownload.org/'
-        }
-      }
-    )
-
-    const { data: conv } = await axios.get(
-      `https://api.fabdl.com/spotify/mp3-convert-task/${meta.result.gid}/${meta.result.id}`,
-      {
-        headers: {
-          accept: 'application/json, text/plain, */*',
-          'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-          Referer: 'https://spotifydownload.org/'
-        }
-      }
-    )
-
-    return {
-      status: true,
-      data: {
-        title: meta.result.name,
-        artist: meta.result.artists,
-        duration: convert(meta.result.duration_ms),
-        image: meta.result.image,
-        download: `https://api.fabdl.com${conv.result.download_url}`
-      }
-    }
-  } catch (e) {
-    return { status: false, msg: e.message }
-  }
-}
-
 module.exports = function (app) {
   app.get('/search/spotify', async (req, res) => {
     try {
-      const { apikey, q } = req.query
+      const { apikey, q, limit = 5 } = req.query
 
       if (!apikey)
         return res.json({ status: false, error: 'Apikey required' })
@@ -117,20 +47,35 @@ module.exports = function (app) {
       if (!q)
         return res.json({ status: false, error: 'Query is required' })
 
-      const search = await searchSpotify(q)
-      if (!search.status)
-        return res.json({ status: false, error: search.msg })
+      const creds = await spotifyCreds()
+      if (!creds.status)
+        return res.json({ status: false, error: creds.msg })
 
-      const dl = await spotifyDownload(search.data.url)
-      if (!dl.status)
-        return res.json({ status: false, error: dl.msg })
+      const { data } = await axios.get(
+        `https://api.spotify.com/v1/search?query=${encodeURIComponent(
+          q
+        )}&type=track&offset=0&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${creds.token}` }
+        }
+      )
+
+      if (!data.tracks.items.length)
+        return res.json({ status: false, error: 'Music not found!' })
+
+      const result = data.tracks.items.map((v) => ({
+        title: `${v.album.artists[0].name} - ${v.name}`,
+        artist: v.album.artists[0].name,
+        duration: convert(v.duration_ms),
+        popularity: `${v.popularity}%`,
+        preview: v.preview_url,
+        url: v.external_urls.spotify,
+        thumbnail: v.album.images[0]?.url || null
+      }))
 
       res.status(200).json({
         status: true,
-        result: {
-          ...search.data,
-          download: dl.data.download
-        }
+        result
       })
     } catch (e) {
       res.status(500).json({
