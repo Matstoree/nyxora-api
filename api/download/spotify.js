@@ -1,76 +1,47 @@
 const axios = require('axios')
-const cheerio = require('cheerio')
 
-class SpotMate {
-  constructor() {
-    this._cookie = null
-    this._token = null
-  }
+const convert = (ms) => {
+  let minutes = Math.floor(ms / 60000)
+  let seconds = ((ms % 60000) / 1000).toFixed(0)
+  return minutes + ':' + (seconds < 10 ? '0' : '') + seconds
+}
 
-  async _visit() {
-    const response = await axios.get('https://spotmate.online/en', {
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36'
+const spotifyDownload = async (url) => {
+  try {
+    const { data: meta } = await axios.get(
+      `https://api.fabdl.com/spotify/get?url=${encodeURIComponent(url)}`,
+      {
+        headers: {
+          accept: 'application/json, text/plain, */*',
+          'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+          Referer: 'https://spotifydownload.org/'
+        }
       }
-    })
-
-    const setCookieHeader = response.headers['set-cookie']
-    if (setCookieHeader) {
-      this._cookie = setCookieHeader
-        .map((cookie) => cookie.split(';')[0])
-        .join('; ')
-    }
-
-    const $ = cheerio.load(response.data)
-    this._token = $('meta[name="csrf-token"]').attr('content')
-
-    if (!this._token) {
-      throw new Error('Token CSRF tidak ditemukan')
-    }
-  }
-
-  async info(spotifyUrl) {
-    if (!this._cookie || !this._token) await this._visit()
-
-    const response = await axios.post(
-      'https://spotmate.online/getTrackData',
-      { spotify_url: spotifyUrl },
-      { headers: this._getHeaders() }
     )
 
-    return response.data
-  }
-
-  async convert(spotifyUrl) {
-    if (!this._cookie || !this._token) await this._visit()
-
-    const response = await axios.post(
-      'https://spotmate.online/convert',
-      { urls: spotifyUrl },
-      { headers: this._getHeaders() }
+    const { data: conv } = await axios.get(
+      `https://api.fabdl.com/spotify/mp3-convert-task/${meta.result.gid}/${meta.result.id}`,
+      {
+        headers: {
+          accept: 'application/json, text/plain, */*',
+          'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+          Referer: 'https://spotifydownload.org/'
+        }
+      }
     )
 
-    return response.data
-  }
-
-  clear() {
-    this._cookie = null
-    this._token = null
-  }
-
-  _getHeaders() {
     return {
-      accept: '*/*',
-      'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-      'content-type': 'application/json',
-      cookie: this._cookie,
-      origin: 'https://spotmate.online',
-      referer: 'https://spotmate.online/en',
-      'user-agent':
-        'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36',
-      'x-csrf-token': this._token
+      status: true,
+      data: {
+        title: meta.result.name,
+        artist: meta.result.artists,
+        duration: convert(meta.result.duration_ms),
+        image: meta.result.image,
+        download: `https://api.fabdl.com${conv.result.download_url}`
+      }
     }
+  } catch (e) {
+    return { status: false, msg: e.message }
   }
 }
 
@@ -81,32 +52,23 @@ module.exports = function (app) {
 
       if (!apikey)
         return res.json({ status: false, error: 'Apikey required' })
-
       if (!global.apikey.includes(apikey))
         return res.json({ status: false, error: 'Apikey invalid' })
 
       if (!url)
         return res.json({ status: false, error: 'Url is required' })
 
-      if (!url.includes('spotify.com/track/'))
+      if (!url.includes('spotify.com/track'))
         return res.json({ status: false, error: 'Invalid Spotify track url' })
 
-      const spotMate = new SpotMate()
+      const result = await spotifyDownload(url)
 
-      const trackInfo = await spotMate.info(url)
-      const convertResult = await spotMate.convert(url)
-
-      if (!convertResult || !convertResult.url)
-        return res.json({ status: false, error: 'Download failed' })
-
-      spotMate.clear()
+      if (!result.status)
+        return res.json({ status: false, error: result.msg })
 
       res.status(200).json({
         status: true,
-        result: {
-          title: trackInfo?.album?.name || 'Unknown',
-          download: convertResult.url
-        }
+        result: result.data
       })
     } catch (error) {
       res.status(500).json({
