@@ -38,7 +38,7 @@ const spotifyCreds = async () => {
 module.exports = function (app) {
   app.get('/search/spotify', async (req, res) => {
     try {
-      const { apikey, q, limit = 5 } = req.query
+      const { apikey, q } = req.query
 
       if (!apikey)
         return res.json({ status: false, error: 'Apikey required' })
@@ -54,7 +54,7 @@ module.exports = function (app) {
       const { data } = await axios.get(
         `https://api.spotify.com/v1/search?query=${encodeURIComponent(
           q
-        )}&type=track&offset=0&limit=${limit}`,
+        )}&type=track&offset=0&limit=20`,
         {
           headers: { Authorization: `Bearer ${creds.token}` }
         }
