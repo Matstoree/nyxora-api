@@ -395,7 +395,7 @@
   },
     {
       "name": "User Servers",
-      "desc": "Cek server berdasarkan username",
+      "desc": "Cek server berdasarkan username login",
       "status": "Active",
       "path": "/panel/user-servers?apikey=&domain=&plta=&username="
     }
