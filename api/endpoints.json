@@ -392,8 +392,14 @@
     "desc": "Cek list server Pterodactyl menggunakan domain & PLTA",
     "status": "Active",
     "path": "/panel/servers?apikey=&domain=&plta="
-  }
-],
+  },
+    {
+      "name": "User Servers",
+      "desc": "Cek server berdasarkan username",
+      "status": "Active",
+      "path": "/panel/user-servers?apikey=&domain=&plta=&username="
+    }
+  ],
 "api": [
   {
     "name": "Status Api",
