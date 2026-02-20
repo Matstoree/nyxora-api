@@ -386,12 +386,21 @@
       "path": "/imagecreator/bratvideo?apikey=&text="
     }
   ],
-  "api": [
-    {
-      "name": "Status Api",
-      "desc": "",
-      "status": "Active",
-      "path": "/api/status"
-    }
-  ]
-}
+  "panel": [
+      {
+        name: "List Servers",
+        desc: "Cek list server Pterodactyl menggunakan domain & PLTA",
+        status: "Active",
+        path: "/panel/servers?apikey=&domain=&plta="
+      }
+    ],
+    "api": [
+      {
+        name: "Status Api",
+        desc: "",
+        status: "Active",
+        path: "/api/status"
+      }
+    ]
+  })
+})
