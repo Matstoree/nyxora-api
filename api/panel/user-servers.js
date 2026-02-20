@@ -13,7 +13,9 @@ module.exports = function (app) {
         return res.json({ status: false, error: 'Parameter tidak lengkap' })
       }
 
-      const cleanDomain = domain.replace(/\/+$/, '')
+      const cleanDomain = domain
+        .replace(/\/+$/, '')
+        .replace(/\/api$/, '')
 
       const usersRes = await axios.get(
         `${cleanDomain}/api/application/users`,
@@ -51,6 +53,7 @@ module.exports = function (app) {
           id: s.attributes.id,
           uuid: s.attributes.uuid,
           name: s.attributes.name,
+          description: s.attributes.description || "",
           ram: s.attributes.limits.memory,
           disk: s.attributes.limits.disk,
           cpu: s.attributes.limits.cpu
