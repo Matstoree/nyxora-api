@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 module.exports = function (app) {
-  app.get('/panel/servers', async (req, res) => {
+  app.get('/panel/user-servers', async (req, res) => {
     try {
       const { apikey, domain, plta, name } = req.query
 
