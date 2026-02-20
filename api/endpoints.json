@@ -386,7 +386,7 @@
       "path": "/imagecreator/bratvideo?apikey=&text="
     }
   ],
-"panel": [
+"pterodactly": [
   {
     "name": "List Servers",
     "desc": "Cek list server Pterodactyl menggunakan domain & PLTA",
