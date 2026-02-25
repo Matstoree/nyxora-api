@@ -86,6 +86,12 @@
       "status": "Active",
       "path": "/download/ytmp3?apikey=&url="
     },
+      {
+  "name": "Surah Audio",
+  "desc": "Download audio surah Al-Qur'an (Misyari Rashid)",
+  "status": "Active",
+  "path": "/download/surah?apikey=&nomor="
+    },
     {
       "name": "Snackvideo",
       "desc": "Downloader snackvideo",
