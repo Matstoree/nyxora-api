@@ -8,56 +8,60 @@ async function mlregion(userId, zoneId) {
 
   const url = "https://pizzoshop.com/mlchecker/check";
 
-  const data = qs.stringify({
+  const payload = qs.stringify({
     user_id: userId,
     zone_id: zoneId
   });
 
-  const config = {
-    method: "post",
-    url: url,
-    headers: {
-      authority: "pizzoshop.com",
-      "content-type": "application/x-www-form-urlencoded",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-      accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-      origin: "https://pizzoshop.com",
-      referer: "https://pizzoshop.com/mlchecker"
-    },
-    data: data
-  };
-
   try {
-    const response = await axios(config);
+    const response = await axios({
+      method: "POST",
+      url: url,
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        origin: "https://pizzoshop.com",
+        referer: "https://pizzoshop.com/mlchecker"
+      },
+      data: payload,
+      timeout: 15000
+    });
+
     const $ = cheerio.load(response.data);
 
     const table = $(".table-modern");
 
-    if (table.length === 0) {
+    if (!table.length) {
       const errorMsg = $(".alert-danger").text().trim();
       throw new Error(errorMsg || "Data tidak ditemukan atau User ID salah.");
     }
 
-    const result = {};
+    const result = {
+      username: null,
+      region: null,
+      lastLogin: null,
+      createdAt: null
+    };
 
-    table.find("tr").each((i, el) => {
+    table.find("tr").each((_, el) => {
       const key = $(el).find("th").text().replace(/\s+/g, " ").trim();
       const value = $(el).find("td").text().trim();
 
-      if (key.includes("Nickname")) result.username = value;
-      if (key.includes("Region ID")) result.region = value;
-      if (key.includes("Last Login")) result.lastLogin = value;
-      if (key.includes("Created data")) result.createdAt = value;
+      if (/Nickname/i.test(key)) result.username = value;
+      if (/Region ID/i.test(key)) result.region = value;
+      if (/Last Login/i.test(key)) result.lastLogin = value;
+      if (/Created/i.test(key)) result.createdAt = value;
     });
 
-    if (!result.username) throw new Error("Data tidak valid atau tidak ditemukan");
+    if (!result.username) {
+      throw new Error("Gagal parsing data (struktur berubah?)");
+    }
 
     return result;
 
-  } catch (error) {
-    throw new Error(error.message);
+  } catch (err) {
+    throw new Error(err.message);
   }
 }
 
@@ -79,7 +83,7 @@ module.exports = function (app) {
 
       const data = await mlregion(user_id, zone_id);
 
-      res.json({
+      return res.json({
         status: true,
         creator: "Matstoree",
         result: {
@@ -88,13 +92,12 @@ module.exports = function (app) {
           username: data.username,
           region: data.region,
           last_login: data.lastLogin,
-          created_at: data.createdAt,
-          raw: data
+          created_at: data.createdAt
         }
       });
 
     } catch (e) {
-      res.json({
+      return res.json({
         status: false,
         error: e.message
       });
