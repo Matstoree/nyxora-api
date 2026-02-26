@@ -1,36 +1,64 @@
 const axios = require("axios");
+const cheerio = require("cheerio");
+const qs = require("qs");
 
-async function mlregion(user_id, zone_id) {
-  if (!user_id || isNaN(user_id)) throw new Error("Invalid user id");
-  if (!zone_id || isNaN(zone_id)) throw new Error("Invalid zone id");
+async function mlregion(userId, zoneId) {
+  if (!userId || isNaN(userId)) throw new Error("Invalid user id");
+  if (!zoneId || isNaN(zoneId)) throw new Error("Invalid zone id");
 
-  const { data } = await axios.post(
-    "https://api.nekolabs.web.id/px?url=https://api-gw-prd.vocagame.com/gateway-ms/order/v1/client/transactions/verify",
-    {
-      shop_code: "MOBILE_LEGENDS",
-      data: {
-        user_id: user_id.toString(),
-        zone_id: zone_id.toString()
-      }
+  const url = "https://pizzoshop.com/mlchecker/check";
+
+  const data = qs.stringify({
+    user_id: userId,
+    zone_id: zoneId
+  });
+
+  const config = {
+    method: "post",
+    url: url,
+    headers: {
+      authority: "pizzoshop.com",
+      "content-type": "application/x-www-form-urlencoded",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+      origin: "https://pizzoshop.com",
+      referer: "https://pizzoshop.com/mlchecker"
     },
-    {
-      headers: {
-        origin: "https://vocagame.com",
-        referer: "https://vocagame.com/",
-        "user-agent":
-          "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Mobile Safari/537.36",
-        "x-api-key": "4QG09jBHxuS4",
-        "x-client": "web-mobile",
-        "x-country": "ID",
-        "x-locale": "id-id",
-        "x-timestamp": Date.now()
-      }
+    data: data
+  };
+
+  try {
+    const response = await axios(config);
+    const $ = cheerio.load(response.data);
+
+    const table = $(".table-modern");
+
+    if (table.length === 0) {
+      const errorMsg = $(".alert-danger").text().trim();
+      throw new Error(errorMsg || "Data tidak ditemukan atau User ID salah.");
     }
-  );
 
-  if (!data?.result?.content) throw new Error("Data tidak ditemukan");
+    const result = {};
 
-  return data.result.content;
+    table.find("tr").each((i, el) => {
+      const key = $(el).find("th").text().replace(/\s+/g, " ").trim();
+      const value = $(el).find("td").text().trim();
+
+      if (key.includes("Nickname")) result.username = value;
+      if (key.includes("Region ID")) result.region = value;
+      if (key.includes("Last Login")) result.lastLogin = value;
+      if (key.includes("Created data")) result.createdAt = value;
+    });
+
+    if (!result.username) throw new Error("Data tidak valid atau tidak ditemukan");
+
+    return result;
+
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 module.exports = function (app) {
@@ -58,10 +86,13 @@ module.exports = function (app) {
           user_id,
           zone_id,
           username: data.username,
-          country: data.country_of_origin?.toUpperCase(),
+          region: data.region,
+          last_login: data.lastLogin,
+          created_at: data.createdAt,
           raw: data
         }
       });
+
     } catch (e) {
       res.json({
         status: false,
