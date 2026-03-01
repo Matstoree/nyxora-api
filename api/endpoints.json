@@ -368,6 +368,12 @@
   ],
   "creator": [
     {
+  "name": "Flux AI",
+  "desc": "Generate image using FLUX AI (text to image)",
+  "status": "Active",
+  "path": "/imagecreator/flux?apikey=&prompt="
+    },
+    {
       "name": "Removebg",
       "desc": "Remove background image",
       "status": "Active",
