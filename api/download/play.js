@@ -1,65 +1,73 @@
 const axios = require("axios");
 const yts = require("yt-search");
+const crypto = require("crypto");
 
-function randomcookie() {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 26; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `PHPSESSID=${result}`;
+const MASTER_KEY_HEX = 'C5D58EF67A7584E4A29F6C35BBC4EB12';
+
+function decryptPayload(encryptedBase64) {
+  const dataBuffer = Buffer.from(encryptedBase64, 'base64');
+  const iv = dataBuffer.slice(0, 16);
+  const ciphertext = dataBuffer.slice(16);
+  const key = Buffer.from(MASTER_KEY_HEX, 'hex');
+
+  const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
+  let decrypted = decipher.update(ciphertext, 'binary', 'utf8');
+  decrypted += decipher.final('utf8');
+
+  return JSON.parse(decrypted);
 }
 
-async function getYouTubeMp3(videoUrl) {
+const savetube = {
 
-  const params = new URLSearchParams();
-  params.append("url", videoUrl);
+  async getCDN() {
+    const res = await axios.get('https://media.savetube.vip/api/random-cdn');
+    return res.data.cdn;
+  },
 
-  const headers = {
-    accept: "*/*",
-    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-    cookie: randomcookie(),
-    origin: "https://app.ytdown.to",
-    referer: "https://app.ytdown.to/en16/",
-    "user-agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/145.0.0.0 Safari/537.36",
-    "x-requested-with": "XMLHttpRequest"
-  };
+  async getInfo(url) {
+    const cdn = await this.getCDN();
 
-  const { data } = await axios.post(
-    "https://app.ytdown.to/proxy.php",
-    params,
-    { headers }
-  );
+    const res = await axios.post(`https://${cdn}/v2/info`, { url }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': 'https://ytmp4.co.za',
+        'Referer': 'https://ytmp4.co.za/'
+      }
+    });
 
-  if (!data?.api?.mediaItems) {
-    throw new Error("Media tidak ditemukan");
+    if (!res.data.status) throw new Error(res.data.message);
+
+    const decrypted = decryptPayload(res.data.data);
+
+    return {
+      cdn,
+      ...decrypted
+    };
+  },
+
+  async getDownload(cdn, key, quality, type = "audio") {
+    const res = await axios.post(`https://${cdn}/download`, {
+      downloadType: type,
+      quality,
+      key
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': 'https://ytmp4.co.za',
+        'Referer': 'https://ytmp4.co.za/'
+      }
+    });
+
+    if (!res.data.status) throw new Error(res.data.message);
+
+    return res.data.data;
   }
 
-  // ambil mp3 render
-  const mp3 = data.api.mediaItems.find(
-    v => v.type === "Audio" && v.mediaExtension === "MP3"
-  );
-
-  if (!mp3) throw new Error("MP3 tidak tersedia");
-
-  // request render mp3
-  const render = await axios.get(mp3.mediaUrl);
-
-  if (render.data.status !== "completed") {
-    throw new Error("MP3 belum siap");
-  }
-
-  return {
-    title: data.api.title,
-    thumbnail: data.api.imagePreviewUrl,
-    download: render.data.fileUrl
-  };
-}
+};
 
 module.exports = function (app) {
 
-  app.get("/download/play", async (req, res) => {
+  app.get('/download/play', async (req, res) => {
     try {
 
       const { apikey, q } = req.query;
@@ -67,47 +75,60 @@ module.exports = function (app) {
       if (!apikey || !global.apikey.includes(apikey)) {
         return res.json({
           status: false,
-          error: "Apikey invalid"
+          error: 'Apikey invalid'
         });
       }
 
       if (!q) {
         return res.json({
           status: false,
-          error: "Query tidak boleh kosong"
+          error: 'Query tidak boleh kosong'
         });
       }
 
-      const searchResult = await yts(q);
+      const search = await yts(q);
 
-      if (!searchResult?.videos?.length) {
+      if (!search.videos.length) {
         return res.json({
           status: false,
-          error: "Video tidak ditemukan"
+          error: 'Video tidak ditemukan'
         });
       }
 
-      const video = searchResult.videos[0];
-      const result = await getYouTubeMp3(video.url);
+      const video = search.videos[0];
+
+      const info = await savetube.getInfo(video.url);
+
+      // pilih audio quality pertama
+      const audio = info.audio?.[0];
+
+      if (!audio) throw new Error("Audio tidak tersedia");
+
+      const dl = await savetube.getDownload(
+        info.cdn,
+        audio.key,
+        audio.quality,
+        "audio"
+      );
 
       res.json({
         status: true,
         creator: "Matstoree",
         metadata: {
-          title: result.title,
+          title: info.title,
           channel: video.author.name,
           duration: video.seconds,
-          cover: result.thumbnail,
+          cover: video.thumbnail,
           url: video.url
         },
-        audio: result.download
+        audio: dl.downloadUrl
       });
 
-    } catch (e) {
+    } catch (err) {
 
       res.json({
         status: false,
-        error: e.message
+        error: err.message
       });
 
     }
