@@ -11,11 +11,9 @@ module.exports = function (app) {
     const iv = dataBuffer.slice(0, 16);
     const ciphertext = dataBuffer.slice(16);
     const key = Buffer.from(MASTER_KEY_HEX, "hex");
-
     const decipher = crypto.createDecipheriv("aes-128-cbc", key, iv);
     let decrypted = decipher.update(ciphertext, "binary", "utf8");
     decrypted += decipher.final("utf8");
-
     return JSON.parse(decrypted);
   }
 
@@ -44,15 +42,23 @@ module.exports = function (app) {
     }
 
     const decrypted = decryptPayload(infoRes.data.data);
-
     const key = decrypted.key;
 
-    const audio =
-      decrypted.medias.find(
-        (v) => v.type === "audio" && (v.quality === "128" || v.quality === "128kbps")
-      ) || decrypted.medias.find((v) => v.type === "audio");
+    let medias = [];
 
-    if (!audio) throw new Error("Audio not found");
+    if (decrypted.medias) {
+      medias = decrypted.medias;
+    } else if (decrypted.data && decrypted.data.audio) {
+      medias = decrypted.data.audio;
+    }
+
+    if (!medias.length) {
+      throw new Error("Audio media not found");
+    }
+
+    const audio =
+      medias.find(v => v.type === "audio" && (v.quality === "128" || v.quality === "128kbps"))
+      || medias[0];
 
     const downloadRes = await axios.post(
       `https://${cdn}/download`,
@@ -114,7 +120,7 @@ module.exports = function (app) {
 
       res.json({
         status: true,
-        creator: "ItsMeMatt",
+        creator: "Matstoree",
         metadata: {
           title: result.title,
           channel: video.author.name,
@@ -128,8 +134,10 @@ module.exports = function (app) {
     } catch (e) {
       res.json({
         status: false,
+        creator: "ItsMeMatt",
         error: e.message
       });
     }
   });
+
 };
