@@ -12,13 +12,14 @@ function decryptPayload(encryptedBase64) {
   const key = Buffer.from(MASTER_KEY_HEX, "hex");
 
   const decipher = crypto.createDecipheriv("aes-128-cbc", key, iv);
+
   let decrypted = decipher.update(ciphertext, "binary", "utf8");
   decrypted += decipher.final("utf8");
 
   return JSON.parse(decrypted);
 }
 
-/* savetube scraper */
+/* module savetube */
 const savetube = {
 
   async getCDN() {
@@ -29,7 +30,8 @@ const savetube = {
   async getInfo(url) {
     const cdn = await this.getCDN();
 
-    const res = await axios.post(`https://${cdn}/v2/info`,
+    const res = await axios.post(
+      `https://${cdn}/v2/info`,
       { url },
       {
         headers: {
@@ -40,7 +42,9 @@ const savetube = {
       }
     );
 
-    if (!res.data.status) throw new Error("Failed get video info");
+    if (!res.data.status) {
+      throw new Error(res.data.message || "Failed to fetch info");
+    }
 
     const decrypted = decryptPayload(res.data.data);
 
@@ -50,9 +54,10 @@ const savetube = {
     };
   },
 
-  async getDownload(cdn, key, quality, type = "audio") {
+  async getDownload(cdn, key, quality = "mp3", type = "audio") {
 
-    const res = await axios.post(`https://${cdn}/download`,
+    const res = await axios.post(
+      `https://${cdn}/download`,
       {
         downloadType: type,
         quality: quality,
@@ -67,13 +72,14 @@ const savetube = {
       }
     );
 
-    if (!res.data.status) throw new Error("Failed generate download");
+    if (!res.data.status) {
+      throw new Error(res.data.message || "Failed to generate link");
+    }
 
     return res.data.data;
   }
 
 };
-
 
 module.exports = function (app) {
 
@@ -97,16 +103,16 @@ module.exports = function (app) {
         });
       }
 
-      const search = await yts(q);
+      const searchResult = await yts(q);
 
-      if (!search.videos.length) {
+      if (!searchResult.videos.length) {
         return res.json({
           status: false,
           error: "Video tidak ditemukan"
         });
       }
 
-      const video = search.videos[0];
+      const video = searchResult.videos[0];
 
       /* ambil info dari savetube */
       const info = await savetube.getInfo(video.url);
@@ -120,22 +126,23 @@ module.exports = function (app) {
       );
 
       res.json({
-        success: true,
-        author: "Matstoree",
-        result: {
+        status: true,
+        creator: "Matstoree",
+        metadata: {
           title: video.title,
-          thumbnail: video.thumbnail,
-          quality: "mp3",
-          type: "audio",
-          downloadUrl: audio.downloadUrl
-        }
+          channel: video.author.name,
+          duration: video.seconds,
+          cover: video.thumbnail,
+          url: video.url
+        },
+        audio: audio.downloadUrl
       });
 
-    } catch (err) {
+    } catch (e) {
 
       res.json({
-        success: false,
-        error: err.message
+        status: false,
+        error: e.message
       });
 
     }
