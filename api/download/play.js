@@ -11,6 +11,7 @@ function randomcookie() {
 }
 
 async function getYouTubeMp3(videoUrl) {
+
   const params = new URLSearchParams();
   params.append("url", videoUrl);
 
@@ -22,7 +23,7 @@ async function getYouTubeMp3(videoUrl) {
     referer: "https://app.ytdown.to/en16/",
     "user-agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/145.0.0.0 Safari/537.36",
-    "x-requested-with": "XMLHttpRequest",
+    "x-requested-with": "XMLHttpRequest"
   };
 
   const { data } = await axios.post(
@@ -32,21 +33,27 @@ async function getYouTubeMp3(videoUrl) {
   );
 
   if (!data?.api?.mediaItems) {
-    throw new Error("Failed mengambil media");
+    throw new Error("Media tidak ditemukan");
   }
 
+  // ambil mp3 render
   const mp3 = data.api.mediaItems.find(
-    (v) => v.type === "Audio" && v.mediaExtension === "MP3"
+    v => v.type === "Audio" && v.mediaExtension === "MP3"
   );
 
-  if (!mp3) {
-    throw new Error("MP3 tidak tersedia");
+  if (!mp3) throw new Error("MP3 tidak tersedia");
+
+  // request render mp3
+  const render = await axios.get(mp3.mediaUrl);
+
+  if (render.data.status !== "completed") {
+    throw new Error("MP3 belum siap");
   }
 
   return {
     title: data.api.title,
     thumbnail: data.api.imagePreviewUrl,
-    download: mp3.mediaUrl,
+    download: render.data.fileUrl
   };
 }
 
@@ -54,19 +61,20 @@ module.exports = function (app) {
 
   app.get("/download/play", async (req, res) => {
     try {
+
       const { apikey, q } = req.query;
 
       if (!apikey || !global.apikey.includes(apikey)) {
         return res.json({
           status: false,
-          error: "Apikey invalid",
+          error: "Apikey invalid"
         });
       }
 
       if (!q) {
         return res.json({
           status: false,
-          error: "Query tidak boleh kosong",
+          error: "Query tidak boleh kosong"
         });
       }
 
@@ -75,7 +83,7 @@ module.exports = function (app) {
       if (!searchResult?.videos?.length) {
         return res.json({
           status: false,
-          error: "Video tidak ditemukan",
+          error: "Video tidak ditemukan"
         });
       }
 
@@ -90,16 +98,18 @@ module.exports = function (app) {
           channel: video.author.name,
           duration: video.seconds,
           cover: result.thumbnail,
-          url: video.url,
+          url: video.url
         },
         audio: result.download
       });
 
     } catch (e) {
+
       res.json({
         status: false,
-        error: e.message,
+        error: e.message
       });
+
     }
   });
 
