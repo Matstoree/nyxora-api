@@ -1,66 +1,130 @@
 const axios = require("axios")
+const crypto = require("crypto")
+
+const MASTER_KEY_HEX = "C5D58EF67A7584E4A29F6C35BBC4EB12"
+
+/* decrypt response savetube */
+function decryptPayload(encryptedBase64) {
+  const dataBuffer = Buffer.from(encryptedBase64, "base64")
+  const iv = dataBuffer.slice(0, 16)
+  const ciphertext = dataBuffer.slice(16)
+  const key = Buffer.from(MASTER_KEY_HEX, "hex")
+
+  const decipher = crypto.createDecipheriv("aes-128-cbc", key, iv)
+
+  let decrypted = decipher.update(ciphertext, "binary", "utf8")
+  decrypted += decipher.final("utf8")
+
+  return JSON.parse(decrypted)
+}
+
+/* module savetube */
+const savetube = {
+
+  async getCDN() {
+    const res = await axios.get("https://media.savetube.vip/api/random-cdn")
+    return res.data.cdn
+  },
+
+  async getInfo(url) {
+
+    const cdn = await this.getCDN()
+
+    const res = await axios.post(
+      `https://${cdn}/v2/info`,
+      { url },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Origin": "https://ytmp4.co.za",
+          "Referer": "https://ytmp4.co.za/"
+        }
+      }
+    )
+
+    if (!res.data.status) {
+      throw new Error(res.data.message || "Failed to fetch info")
+    }
+
+    const decrypted = decryptPayload(res.data.data)
+
+    return {
+      cdn,
+      ...decrypted
+    }
+
+  },
+
+  async getDownload(cdn, key, quality = "mp3", type = "audio") {
+
+    const res = await axios.post(
+      `https://${cdn}/download`,
+      {
+        downloadType: type,
+        quality: quality,
+        key: key
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Origin": "https://ytmp4.co.za",
+          "Referer": "https://ytmp4.co.za/"
+        }
+      }
+    )
+
+    if (!res.data.status) {
+      throw new Error(res.data.message || "Failed to generate link")
+    }
+
+    return res.data.data
+  }
+
+}
 
 module.exports = function (app) {
 
-  async function getYouTubeMp3(youtubeUrl) {
+  async function getYouTubeMp3(url) {
+
+    const info = await savetube.getInfo(url)
+
+    const audio = await savetube.getDownload(
+      info.cdn,
+      info.key,
+      "mp3",
+      "audio"
+    )
+
     const videoId =
-      youtubeUrl.split('be/')[1]?.split('?')[0] ||
-      youtubeUrl.split('v=')[1]?.split('&')[0]
-
-    if (!videoId) throw new Error("Invalid YouTube URL")
-
-    const ajaxUrl = 'https://ssyoutube.online/wp-admin/admin-ajax.php'
-
-    const step1Payload = new URLSearchParams()
-    step1Payload.append('action', 'get_mp3_yt_option')
-    step1Payload.append('videoId', videoId)
-
-    const response1 = await axios.post(ajaxUrl, step1Payload, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
-
-    if (!response1.data.success || !response1.data.data.link) {
-      throw new Error("Failed to get raw mp3 link")
-    }
-
-    const rawMp3Link = response1.data.data.link
-    const videoTitle = response1.data.data.title
-
-    const step2Payload = new URLSearchParams()
-    step2Payload.append('action', 'mp3_yt_generic_proxy_ajax')
-    step2Payload.append('targetUrl', rawMp3Link)
-
-    const response2 = await axios.post(ajaxUrl, step2Payload, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
-
-    if (!response2.data.success || !response2.data.data.proxiedUrl) {
-      throw new Error("Failed to proxy mp3 link")
-    }
+      url.split("be/")[1]?.split("?")[0] ||
+      url.split("v=")[1]?.split("&")[0]
 
     return {
-      title: videoTitle,
-      duration: 0,
+      title: info.title,
+      duration: info.duration || 0,
       thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      download: response2.data.data.proxiedUrl
+      download: audio.downloadUrl
     }
+
   }
 
-  app.get('/download/ytmp3', async (req, res) => {
+  app.get("/download/ytmp3", async (req, res) => {
+
     try {
+
       const { apikey, url } = req.query
 
       if (!apikey || !global.apikey.includes(apikey)) {
         return res.json({
           status: false,
-          error: 'Apikey invalid'
+          error: "Apikey invalid"
         })
       }
 
       if (!url) {
         return res.json({
           status: false,
-          error: 'Url is required'
+          error: "Url is required"
         })
       }
 
@@ -68,16 +132,19 @@ module.exports = function (app) {
 
       res.json({
         status: true,
-        creator: 'ItsMeMatt',
+        creator: "ItsMeMatt",
         result
       })
 
     } catch (e) {
+
       res.json({
         status: false,
         error: e.message
       })
+
     }
+
   })
 
 }
