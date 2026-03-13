@@ -1,67 +1,102 @@
 const axios = require("axios");
 const yts = require("yt-search");
+const crypto = require("crypto");
+
+const MASTER_KEY_HEX = "C5D58EF67A7584E4A29F6C35BBC4EB12";
 
 module.exports = function (app) {
 
-  async function getYouTubeMp3(youtubeUrl) {
-    const videoId =
-      youtubeUrl.split('be/')[1]?.split('?')[0] ||
-      youtubeUrl.split('v=')[1]?.split('&')[0];
+  function decryptPayload(encryptedBase64) {
+    const dataBuffer = Buffer.from(encryptedBase64, "base64");
+    const iv = dataBuffer.slice(0, 16);
+    const ciphertext = dataBuffer.slice(16);
+    const key = Buffer.from(MASTER_KEY_HEX, "hex");
 
-    if (!videoId) throw new Error("Invalid YouTube URL");
+    const decipher = crypto.createDecipheriv("aes-128-cbc", key, iv);
+    let decrypted = decipher.update(ciphertext, "binary", "utf8");
+    decrypted += decipher.final("utf8");
 
-    const ajaxUrl = 'https://ssyoutube.online/wp-admin/admin-ajax.php';
+    return JSON.parse(decrypted);
+  }
 
-    const step1Payload = new URLSearchParams();
-    step1Payload.append('action', 'get_mp3_yt_option');
-    step1Payload.append('videoId', videoId);
+  async function getCDN() {
+    const res = await axios.get("https://media.savetube.vip/api/random-cdn");
+    return res.data.cdn;
+  }
 
-    const response1 = await axios.post(ajaxUrl, step1Payload, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
+  async function getYouTubeMp3(url) {
+    const cdn = await getCDN();
 
-    if (!response1.data.success || !response1.data.data.link) {
-      throw new Error("Failed to get raw mp3 link");
+    const infoRes = await axios.post(
+      `https://${cdn}/v2/info`,
+      { url },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://ytmp4.co.za",
+          Referer: "https://ytmp4.co.za/"
+        }
+      }
+    );
+
+    if (!infoRes.data.status) {
+      throw new Error(infoRes.data.message || "Failed to fetch info");
     }
 
-    const rawMp3Link = response1.data.data.link;
-    const videoTitle = response1.data.data.title;
+    const decrypted = decryptPayload(infoRes.data.data);
 
-    const step2Payload = new URLSearchParams();
-    step2Payload.append('action', 'mp3_yt_generic_proxy_ajax');
-    step2Payload.append('targetUrl', rawMp3Link);
+    const key = decrypted.key;
 
-    const response2 = await axios.post(ajaxUrl, step2Payload, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
+    const audio =
+      decrypted.medias.find(
+        (v) => v.type === "audio" && (v.quality === "128" || v.quality === "128kbps")
+      ) || decrypted.medias.find((v) => v.type === "audio");
 
-    if (!response2.data.success || !response2.data.data.proxiedUrl) {
-      throw new Error("Failed to proxy mp3 link");
+    if (!audio) throw new Error("Audio not found");
+
+    const downloadRes = await axios.post(
+      `https://${cdn}/download`,
+      {
+        downloadType: "audio",
+        quality: audio.quality,
+        key: key
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://ytmp4.co.za",
+          Referer: "https://ytmp4.co.za/"
+        }
+      }
+    );
+
+    if (!downloadRes.data.status) {
+      throw new Error(downloadRes.data.message || "Failed to generate link");
     }
 
     return {
-      title: videoTitle,
-      duration: 0,
-      thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      download: response2.data.data.proxiedUrl
+      title: decrypted.title,
+      duration: decrypted.duration || 0,
+      thumbnail: decrypted.thumbnail,
+      download: downloadRes.data.data
     };
   }
 
-  app.get('/download/play', async (req, res) => {
+  app.get("/download/play", async (req, res) => {
     try {
       const { apikey, q } = req.query;
 
       if (!apikey || !global.apikey.includes(apikey)) {
         return res.json({
           status: false,
-          error: 'Apikey invalid'
+          error: "Apikey invalid"
         });
       }
 
       if (!q) {
         return res.json({
           status: false,
-          error: 'Query tidak boleh kosong'
+          error: "Query tidak boleh kosong"
         });
       }
 
@@ -70,7 +105,7 @@ module.exports = function (app) {
       if (!searchResult || !searchResult.videos || searchResult.videos.length === 0) {
         return res.json({
           status: false,
-          error: 'Video tidak ditemukan'
+          error: "Video tidak ditemukan"
         });
       }
 
@@ -79,7 +114,7 @@ module.exports = function (app) {
 
       res.json({
         status: true,
-        creator: 'Matstoree',
+        creator: "ItsMeMatt",
         metadata: {
           title: result.title,
           channel: video.author.name,
